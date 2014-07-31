@@ -33,66 +33,66 @@ getElementAttrAniTable<-function(){
   df1
 }
 
-# returns an dataframe with attr, elements and page-links to values
-# this is derived from the same table as getElementAttrAniTable
-# the difference is that his include the page-links, 
-# while getElementAttrAniTable includes animatable flag
-
-getElementAttrLinkTable<-function(){
-  url="http://www.w3.org/TR/SVG/attindex.html"    
-  script<-getURL(url)
-  doc <- htmlParse(script)
-  getNodeSet(doc, "//tr")->ns.tr
-  
-  extractAttr<-function(n){
-    kids<-xmlChildren(n)
-    rtv<-list()
-    if(length(kids)==3 ){
-      #     alink<-xmlAttrs(kids[[1]])
-      #     attr<- xmlValue(kids[[1]])
-      rtv<-xmlToList(n)
-    }
-    unlist(rtv)
-  } 
-  sapply(ns.tr, extractAttr)->links  
-  indx<-sapply(links, length)
-  goodIndx<-indx>=6 & indx%%2==0
-  initialNames<-c("td.a.span.text" ,   "td.a.span..attrs.class", "td.a..attrs.href",    "td.a.span.text" ,   "td.a.span..attrs.class", "td.a..attrs.href"  )
-  startsGood<-function(x){all(names(x)[1:6]==initialNames)}
-  links<-links[goodIndx]
-  goodIndx<-sapply(links, startsGood)
-  links<-links[goodIndx]
-  
-  # links[[1]]
-  # names(links[[1]])
-  
-  doRow<-function(row){
-    txt<-row[names(row)=="td.a.span.text"]
-    ref<-row[names(row)=="td.a..attrs.href"]
-    
-    attribName<-txt[1]
-    attribRef<-ref[1]
-    elements<-txt[-1]
-    # elementRefs<-ref[-1]
-    df<-data.frame(attr=attribName, element=elements, link=attribRef, stringsAsFactors = F)
-    row.names(df)<-NULL
-    df
-  }
-  
-  #links[[1]]->row
-  links<-lapply(links, doRow)
-  linkInfo<-do.call(rbind, links)
-  strsplit(linkInfo$link, "#")->tmp
-  do.call(rbind, tmp)->tmp2
-  linkInfo$page<-tmp2[,1]
-  linkInfo$loc<-tmp2[,2]
-  
-  linkInfo  
-}
-
 
 
 getAEVL.df<-function(){
+  # returns an dataframe with attr, elements and page-links to values
+  # this is derived from the same table as getElementAttrAniTable
+  # the difference is that his include the page-links, 
+  # while getElementAttrAniTable includes animatable flag
+  
+  getElementAttrLinkTable<-function(){
+    url="http://www.w3.org/TR/SVG/attindex.html"    
+    script<-getURL(url)
+    doc <- htmlParse(script)
+    getNodeSet(doc, "//tr")->ns.tr
+    
+    extractAttr<-function(n){
+      kids<-xmlChildren(n)
+      rtv<-list()
+      if(length(kids)==3 ){
+        #     alink<-xmlAttrs(kids[[1]])
+        #     attr<- xmlValue(kids[[1]])
+        rtv<-xmlToList(n)
+      }
+      unlist(rtv)
+    } 
+    sapply(ns.tr, extractAttr)->links  
+    indx<-sapply(links, length)
+    goodIndx<-indx>=6 & indx%%2==0
+    initialNames<-c("td.a.span.text" ,   "td.a.span..attrs.class", "td.a..attrs.href",    "td.a.span.text" ,   "td.a.span..attrs.class", "td.a..attrs.href"  )
+    startsGood<-function(x){all(names(x)[1:6]==initialNames)}
+    links<-links[goodIndx]
+    goodIndx<-sapply(links, startsGood)
+    links<-links[goodIndx]
+    
+    # links[[1]]
+    # names(links[[1]])
+    
+    doRow<-function(row){
+      txt<-row[names(row)=="td.a.span.text"]
+      ref<-row[names(row)=="td.a..attrs.href"]
+      
+      attribName<-txt[1]
+      attribRef<-ref[1]
+      elements<-txt[-1]
+      # elementRefs<-ref[-1]
+      df<-data.frame(attr=attribName, element=elements, link=attribRef, stringsAsFactors = F)
+      row.names(df)<-NULL
+      df
+    }
+    
+    #links[[1]]->row
+    links<-lapply(links, doRow)
+    linkInfo<-do.call(rbind, links)
+    strsplit(linkInfo$link, "#")->tmp
+    do.call(rbind, tmp)->tmp2
+    linkInfo$page<-tmp2[,1]
+    linkInfo$loc<-tmp2[,2]
+    
+    linkInfo  
+  }
+  
   elemAttrLinkTable<-getElementAttrLinkTable()
   pages<-unique(elemAttrLinkTable$page)
   #next we get each page and open it, and extract for each elem-attr pair on that page
