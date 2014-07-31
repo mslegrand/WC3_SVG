@@ -2,8 +2,8 @@ library(XML)
 library(RCurl)
 #library(stringi)
 
-cleanQuotes<-function(x){
-  gsug("[‘’]","",x)
+cleanElements<-function(x){
+  gsub("[‘’,]","",x)
 }
 
 cleanValues<-function(values){
@@ -16,21 +16,41 @@ cleanValues<-function(values){
   values
 }
 
+
+
 #returns dataframe with animatable data types
 getAnimatableDataTypes<-function(){
   url<-"http://www.w3.org/TR/SVG/animate.html#Animatable"
   rawPMI<-readHTMLTable(url)
   animatableDataTypes<-data.frame(rawPMI[[10]])  
+  animatableDataTypes
 }
 
 
 #returns dataframe with attr, elems,  animatiable status
-getElementAttrAniTable<-function(){
+getAttrElementAniTable<-function(){
   url<-"http://www.w3.org/TR/SVG/attindex.html"
   rawPMI2<-readHTMLTable(url)
-  df1<-data.frame(rawPMI2[[1]])
+  df<-data.frame(rawPMI2[[1]], stringsAsFactors=F)
   #df2<-data.frame(rawPMI2[[2]])
-  df1
+  # clean Attrs
+  df[[1]]<-cleanElements(df[[1]])
+  # clean Elements names
+  elements<-df[[2]]
+  elements<-cleanElements(elements)
+  #clean ani
+  df[[3]]<-sapply(df[[3]], as.character)
+  df[[3]]<-sapply(df[[3]], function(x)x!="")
+  # split into long form  
+  elements<-strsplit(elements," ")
+  oneRow<-function(i){
+    data.frame(attr=df[i,1], element=elements[[i]], ani=df[i,3], 
+               stringsAsFactors=F
+    )
+  }
+  df.list<-lapply(1:nrow(df), oneRow)
+  aea.df<-do.call(rbind, df.list)
+  aea.df
 }
 
 
@@ -190,6 +210,13 @@ getAEVL.df<-function(){
 }
 
 AELV.df<-getAEVL.df()
+cleanElements(AELV.df[[1]])->AELV.df[[1]]
+cleanElements(AELV.df[[2]])->AELV.df[[2]]
+aea.df<-getAttrElementAniTable()
+merge(aea.df, AELV.df, by=c("attr","element"))->AELVA.df
+
+
+
 
 AELV.df$Values->vals
 unique(vals)->uvals
