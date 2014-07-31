@@ -90,105 +90,108 @@ getElementAttrLinkTable<-function(){
   linkInfo  
 }
 
-elemAttrLinkTable<-getElementAttrLinkTable()
 
-#next we get each page and open it, and extract for each elem-attr pair on that page
-# the corresponding values to create an element-attribute-values tabel
-#
 
-# input page (and elemAttrLinkTable),
-# returns dataframe with attr, element, value and links to value description on that
-# page
-getElAttrValLinkFromPage<-function(page){
-  # given a page
-  elAtt<-elemAttrLinkTable[elemAttrLinkTable$page==page,c(1,2,5)]
-  url<-paste("http://www.w3.org/TR/SVG/",page, sep="")  
-  script<-getURL(url)
-  doc <- htmlParse(script)
-  #ids<-paste( "//dt[@id='", elAtt$loc, "']", sep="")
-  ids<-elAtt$loc
-  getValLinks<-function(id){
-    pid=paste( "//dt[@id='", id, "']", sep="")
-    ns<-getNodeSet(doc,pid)
-    if(length(ns)>0){
-      val<-xmlValue(ns[[1]])
-      sib<-getSibling(ns[[1]])
-      links<-getHTMLLinks(sib)
-    } else {
-      pid=paste( "//a[@id='", id, "']", sep="")
+getAEVL.df<-function(){
+  elemAttrLinkTable<-getElementAttrLinkTable()
+  pages<-unique(elemAttrLinkTable$page)
+  #next we get each page and open it, and extract for each elem-attr pair on that page
+  # the corresponding values to create an element-attribute-values tabel
+  #
+  
+  # input page (and elemAttrLinkTable),
+  # returns dataframe with attr, element, value and links to value description on that
+  # page
+  getElAttrValLinkFromPage<-function(page){
+    # given a page
+    elAtt<-elemAttrLinkTable[elemAttrLinkTable$page==page,c(1,2,5)]
+    url<-paste("http://www.w3.org/TR/SVG/",page, sep="")  
+    script<-getURL(url)
+    doc <- htmlParse(script)
+    #ids<-paste( "//dt[@id='", elAtt$loc, "']", sep="")
+    ids<-elAtt$loc
+    getValLinks<-function(id){
+      pid=paste( "//dt[@id='", id, "']", sep="")
       ns<-getNodeSet(doc,pid)
       if(length(ns)>0){
-        parent<-xmlParent(ns[[1]])
-        kids<-xmlChildren(parent)
-        val<-sapply(kids,xmlValue)
-        val<paste(val,collapse="")
-        links<-c("**")        
+        val<-xmlValue(ns[[1]])
+        sib<-getSibling(ns[[1]])
+        links<-getHTMLLinks(sib)
       } else {
-        pid=paste( "//p[@id='", id, "']", sep="")
+        pid=paste( "//a[@id='", id, "']", sep="")
         ns<-getNodeSet(doc,pid)
         if(length(ns)>0){
-          val<-paste(xmlValue(ns[[1]]),collapse=" ")
-          links<-getHTMLLinks(ns[[1]]) 
-          cat(class(val),"\n")
-          print(length(val))
-          cat(class(links),"\n")
-          cat("val=",val,"\n")
-          cat("links=",links,"\n")
+          parent<-xmlParent(ns[[1]])
+          kids<-xmlChildren(parent)
+          val<-sapply(kids,xmlValue)
+          val<paste(val,collapse="")
+          links<-c("**")        
         } else {
-          val<-"???"
-          links<-"???"
+          pid=paste( "//p[@id='", id, "']", sep="")
+          ns<-getNodeSet(doc,pid)
+          if(length(ns)>0){
+            val<-paste(xmlValue(ns[[1]]),collapse=" ")
+            links<-getHTMLLinks(ns[[1]]) 
+            cat(class(val),"\n")
+            print(length(val))
+            cat(class(links),"\n")
+            cat("val=",val,"\n")
+            cat("links=",links,"\n")
+          } else {
+            val<-"???"
+            links<-"???"
+          }
         }
       }
+      rtv<-c(val,links) 
     }
-    rtv<-c(val,links) 
+    
+    val_links<-sapply(ids, getValLinks)
+    cat("\n\nclass(val_links)=",class(val_links),"\n")
+    #   if(page=="interact.html"){
+    #     print(val_links)
+    #     print("class(val_links)=",class(val_links),"\n" )
+    #   }
+    if(class(val_links)=="matrix"){
+      val_links<-list(val_links[,1], val_links[,2])
+    }
+    txts<-sapply(val_links, function(x){x[1]} )
+    txts<-strsplit(txts,"=")
+    
+    sapply(txts, function(x){x[2]})->values
+    values<-cleanValues(values)
+    cat(page,"\nlenght(values)=",length(values),"\nnrow(elAtt)=", nrow(elAtt),"\n")
+    if(nrow(elAtt)!=length(values)){
+      print(elAtt)
+      print(values)
+      print(paste(values,collapse=")>-<"))
+      stop("bad news")
+    }
+    elAtt$Values<-values
+    
+    firstLinks<-sapply(val_links, function(x)x[2])
+    elAtt$firstLinks<-firstLinks
+    elAtt
   }
   
-  val_links<-sapply(ids, getValLinks)
-  cat("\n\nclass(val_links)=",class(val_links),"\n")
-#   if(page=="interact.html"){
-#     print(val_links)
-#     print("class(val_links)=",class(val_links),"\n" )
-#   }
-  if(class(val_links)=="matrix"){
-    val_links<-list(val_links[,1], val_links[,2])
-  }
-  txts<-sapply(val_links, function(x){x[1]} )
-  txts<-strsplit(txts,"=")
-
-  sapply(txts, function(x){x[2]})->values
-  values<-cleanValues(values)
-  cat(page,"\nlenght(values)=",length(values),"\nnrow(elAtt)=", nrow(elAtt),"\n")
-  if(nrow(elAtt)!=length(values)){
-    print(elAtt)
-    print(values)
-    print(paste(values,collapse=")>-<"))
-    stop("bad news")
-  }
-  elAtt$Values<-values
-
-  firstLinks<-sapply(val_links, function(x)x[2])
-  elAtt$firstLinks<-firstLinks
-  elAtt
+  # for(i in 1:length(pages)){
+  #   cat("page[",i,"]\n")
+  #   page<-pages[i]
+  #   elAttrLnk<-getElAttrValLinkFromPage(page)
+  # }
+  # page<-pages[1]
+  
+  
+  #elAttrLnk<-getElAttrValLinkFromPage(page)
+  attr_ele_loc_val_1stLnk<-lapply(pages, getElAttrValLinkFromPage)
+  AELV.df<-do.call(rbind, attr_ele_loc_val_1stLnk)->attr_ele_loc_val_1stLnk
+  #getNodeSet(doc, "//dt[@id='FontFaceElementBboxAttribute']")->bbox
+  AELV.df  
 }
 
-pages<-unique(elemAttrLinkTable$page)
+AELV.df<-getAEVL.df()
 
-# for(i in 1:length(pages)){
-#   cat("page[",i,"]\n")
-#   page<-pages[i]
-#   elAttrLnk<-getElAttrValLinkFromPage(page)
-# }
-# page<-pages[1]
-
-
-#elAttrLnk<-getElAttrValLinkFromPage(page)
- attr_ele_loc_val_1stLnk<-lapply(pages, getElAttrValLinkFromPage)
- do.call(rbind, attr_ele_loc_val_1stLnk)->attr_ele_loc_val_1stLnk
-#getNodeSet(doc, "//dt[@id='FontFaceElementBboxAttribute']")->bbox
-
-
-
-attr_ele_loc_val_1stLnk$Values->vals
+AELV.df$Values->vals
 unique(vals)->uvals
 table(vals)->valFreq
 grep("\\|", names(valFreq))->indx.with.vbar
