@@ -26,7 +26,7 @@ getAEAL<-function(){
     df<-data.frame()
     if(length(kids)==3 ){
       kids.strings<-getChildrenStrings(node)
-      attr<-kids.strings[1]
+      attr<-cleanElements(kids.strings[1])
       elements<-kids.strings[2]
       elements<-cleanElements(elements)
       elements<-unlist(strsplit(elements," "))
@@ -198,41 +198,78 @@ pages<-unique(AVEL.df$page)
 # }
 
 AVEL2.df<-do.all.Pages(AVEL.df)
-valType<-(AVEL2.df$lnk)
-#cat(class(valType),"\n")
-strsplit(valType,"#")->valType
-lapply(valType, function(x){ifelse(length(x)>1,gsub("DataType","",x[[2]]), NA)})->valType
-valType<-unlist(valType)
-AVEL2.df$valType<-valType
+row.names(AVEL2.df)<-NULL
+treatValueAs<-(AVEL2.df$lnk)
+#cat(class(treatValueAs),"\n")
+strsplit(treatValueAs,"#")->treatValueAs
+lapply(treatValueAs, function(x){ifelse(length(x)>1,gsub("DataType","",x[[2]]), NA)})->treatValueAs
+treatValueAs<-unlist(treatValueAs)
+AVEL2.df$treatValueAs<-treatValueAs
 grep("\\|",AVEL2.df$val)->choiceIndx
-AVEL2.df[choiceIndx,"valType"]<-"Choice"
+AVEL2.df[choiceIndx,"treatValueAs"]<-"Choice"
 
 
-which(is.na(AVEL2.df$valType))->NA.indx
+which(is.na(AVEL2.df$treatValueAs))->NA.indx
 unique(AVEL2.df$val[NA.indx])->missingTypes
 table(AVEL2.df$val[NA.indx])->missingTypeTable
 sort(missingTypeTable, decreasing = T)->missingTypeTable
-missingType.df<-data.frame(val=names(missingTypeTable), valType=NA)
+missingType.df<-data.frame(val=names(missingTypeTable), treatValueAs=NA)
 missingType.List<-lapply(names(missingTypeTable), function(x){intersect(NA.indx, which(x==AVEL2.df$val)) })
 names(missingType.List)<-names(missingTypeTable)
 missingType.info.df<-lapply(missingType.List, function(x){AVEL2.df[x[[1]],]} )
 missingType.info.df<-do.call(rbind, missingType.info.df)
+missingType.info.df$page<-NULL
+missingType.info.df$loc<-NULL
 rownames(missingType.info.df)<-NULL
 missingType.info.df$Example<-NA
 
+n<-1
+setMissing<-function(attr, type, example){
+  n<-which(missingType.info.df$attr==attr)
+  missingType.info.df[n, 9]<<-type
+  missingType.info.df[n, 10]<<-example
+  n<<-n+1
+}
 
-missingType.info.df[1, 9]<-"Choice"
-missingType.info.df[1, 10]<-'xml:space = "default"'
+#problems from here down
+#1
+setMissing('xml:lang', "string", 'xml:lang=""en-GB"')
+setMissing('id', "string", 'id="string_wo_colon"')
+setMissing('class', 'list-of-strings', 'class="info attr-def"')
+setMissing('style', 'named-list', 'style="fill: red; stroke: blue; stroke-width: 3"')
+#5
+setMissing('requiredExtensions', 'list-of-strings', 'http://example.com/requiredExtension1.svg, http://example.com/requiredExtension2.svg')
+setMissing('requiredFeatures','list-of-strings', 'http://www.w3.org/TR/SVG11/feature#CoreAttribute')
+setMissing("systemLanguage", 'list-of-strings', 'systemLanguage="mi, en"')
+setMissing("xlink:arcrole",  'string', ' http://www.example.org/D<c3><bc>rst')
+#9
+setMissing("xlink:role",  'string', ' http://www.example.org/D<c3><bc>rst')
+setMissing("xlink:title",  'string', ' http://www.example.org/D<c3><bc>rst')
+setMissing("xlink:type",  'string', ' http://www.example.org/D<c3><bc>rst')
+setMissing("xlink:actuate",  'string', 'xlink:actuate = "onLoad"')
 
-missingType.info.df[2, 9]<-"String"
-missingType.info.df[2,10]<-'xml:lang=""en-GB"'
-missingType.info.df[3, 9]<-'String'
-missingType.info.df[3, 10]<-'id="string_wo_colon"'
-missingType.info.df[4, 9]<-'list-of-strings'
-missingType.info.df[4, 10]<-'class="info attr-def"'
-missingType.info.df[5,10]<-'style="fill: red; stroke: blue; stroke-width: 3"'
-missingType.info.df[5,9]<-'named-list'
+setMissing("transform", "transform", "doto")
+setMissing("result", "string", '<feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />')
+setMissing("horiz-adv-x", "number", "??")
+setMissing("keySplines", "comma-semmicolon-list", 'keySplines="0,0.5,0.5,1; 0.5,0,1,0.5; 0,0.5,0.5,1; 0,0.5,0.5,1" ')
+#‘keyPoints’ takes a semicolon-separated list of floating point values between 0 and 1
+setMissing("keyPoints", "semmicolon-list", 'keyPoints="0; 0.5; 1"')
+# appears that space-semicolon seperated list will also work
+# calcMode="spline" keySplines="0 0 1 1; 0 0 1 1" 
+setMissing("keyTimes", "semmicolon-list", 'keySplines="0,0.5,0.5,1; 0.5,0,1,0.5; 0,0.5,0.5,1; 0,0.5,0.5,1" ')
 
+# missingType.info.df[1, 9]<-"String"
+# missingType.info.df[2,10]<-'xml:lang=""en-GB"'
+# 
+# missingType.info.df[3, 9]<-'String'
+# missingType.info.df[3, 10]<-'id="string_wo_colon"'
+# 
+# missingType.info.df[4, 9]<-'list-of-strings'
+# missingType.info.df[4, 10]<-'class="info attr-def"'
+# 
+# missingType.info.df[5,10]<-'style="fill: red; stroke: blue; stroke-width: 3"'
+# missingType.info.df[5,9]<-'named-list'
+# 
 
 
 
@@ -270,3 +307,4 @@ missingType.info.df[5,9]<-'named-list'
 #   cat("valLnk=",valLnk,"\n" ) 
 # }
 # 
+
