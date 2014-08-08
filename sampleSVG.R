@@ -185,9 +185,11 @@ codexNames<-sapply(codexVals, codexVal2Name)
 
 #all svg attributes (should probably make this into a data.table too!)
 attrs.svg<-sort(unique(AVEL2.df$attr))
+elems.svg<-sort(unique(AVEL2.df$element))
 
-attribsFor<-function(codex){
-   att<-as.character(unique(subset(big.df, big.df$codex==x)$attrs))
+
+attribsFor<-function(codx){
+   att<-as.character(unique(filter(big.df, codex==codx)$attrs))
    sort(intersect(att,attrs.svg))
 }
 
@@ -217,18 +219,55 @@ attr4['70']<-NULL #clean up piece with character(0) as it's member
 # and for each such (uniaue) ele-attr, extract a sample node illustrating the triple
 # (or maybe just do codex-attr??? for attr4)
 
-getExample<-function(codex, attr, ele="*", num=1){
-  rows<-filter(big.df, attrs==attr , codex==codex)
-  url<-rows$file[num]
-  pos<-rows$pos[num]
+#the idea: use element-attribute-codex as a key, get unique keys, then use page and pos to get examples
+#but first, must filter by svg attributes and elements
+big.svg.dt<-filter(big.df, tag %in% elems.svg , attrs %in% attrs.svg)
+setkey(big.svg.dt, tag, attrs, codex)
+unique(big.svg.dt)->examples.dt
+examples.dt[order(codex, attrs, tag, decreasing=T)]->examples.dt
+
+
+# getExample<-function(codx, attr, ele="*", num=1){
+#   rows<-filter(big.df, attrs==attr , codex==codx)
+#   url<-rows$file[num]
+#   pos<-rows$pos[num]
+#   script<-getURL(url)
+#   doc <- htmlParse(script)
+#   #cmd<-paste("//*[@",attr,"]",sep="")
+#   cmd<-paste("//",ele,"[@",attr,"]",sep="")
+#   getNodeSet(doc,cmd)->ns
+#   ns[[pos]]
+# }
+
+#create a data.table of all existing svg element-attribute pairs
+# ele.attr.dt<-select(big.df, tag, attrs)
+# unique(ele.attr.dt)->ele.att.u.dt
+# filter(ele.att.u.dt, tag %in%  elems.svg, attrs %in% attrs.svg)->ele.att.u.dt
+
+getExampleFromRow<-function(x){
+  url<-x["file"]
+  #showMe(url)
   script<-getURL(url)
   doc <- htmlParse(script)
-  #cmd<-paste("//*[@",attr,"]",sep="")
-  cmd<-paste("//",ele,"[@",attr,"]",sep="")
-  getNodeSet(doc,cmd)->ns
-  ns[[pos]]
+  getNodeSet(doc,"//*")->ns
+  pos<-as.numeric(x["pos"])
+  #showMe(pos)
+  rtv<-ns[[pos]]
+  #showMe(rtv)
+  rtv
 }
 
-
+apply(as.matrix(examples.dt), 1, getExampleFromRow)->examples
 #getExample(210, 'style')
 
+head(examples.dt)
+# 
+# file.out<-"./examples.txt"
+# for(i in 1:nrow(examples.dt)){
+#   r<-examples.dt[i,]
+#   shead<-paste("codex=",r$codex, "; tag=",r$tag, " attrib=", r$attrs, "\n")
+#   sbod<-toString.XMLNode(examples[[i]])
+#   send<-"\n==================================================\n"
+#   txt<-paste(shead, sbod, send, sep="\n")
+# }
+# 
