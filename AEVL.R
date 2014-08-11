@@ -226,8 +226,8 @@ missingType.info.df$Example<-NA
 n<-1
 setMissing<-function(attr, type, example){
   n<-which(missingType.info.df$attr==attr)
-  missingType.info.df[n, 9]<<-type
-  missingType.info.df[n, 10]<<-example
+  missingType.info.df[n, 7]<<-type
+  missingType.info.df[n, 8]<<-example
   n<<-n+1
 }
 
@@ -235,12 +235,12 @@ setMissing<-function(attr, type, example){
 #1
 setMissing('xml:lang', "string", 'xml:lang=""en-GB"')
 setMissing('id', "string", 'id="string_wo_colon"')
-setMissing('class', 'list-of-strings', 'class="info attr-def"')
-setMissing('style', 'named-list', 'style="fill: red; stroke: blue; stroke-width: 3"')
+setMissing('class', 'wsp-list', '(just called "list" in documentationclass="info attr-def"')
+setMissing('style', 'cln-scln-list', '(named list?) style="fill: red; stroke: blue; stroke-width: 3"')
 #5
-setMissing('requiredExtensions', 'list-of-strings', 'http://example.com/requiredExtension1.svg, http://example.com/requiredExtension2.svg')
-setMissing('requiredFeatures','list-of-strings', 'http://www.w3.org/TR/SVG11/feature#CoreAttribute')
-setMissing("systemLanguage", 'list-of-strings', 'systemLanguage="mi, en"')
+setMissing('requiredExtensions', 'wsp-list', 'list of IRI references: http://example.com/requiredExtension1.svg http://example.com/requiredExtension2.svg')
+setMissing('requiredFeatures','wsp-list', 'list of feature strings: http://www.w3.org/TR/SVG11/feature#CoreAttribute')
+setMissing("systemLanguage", 'cmm-list', 'comma-separated list of language names:systemLanguage="mi, en"')
 setMissing("xlink:arcrole",  'string', ' http://www.example.org/D<c3><bc>rst')
 #9
 setMissing("xlink:role",  'string', ' http://www.example.org/D<c3><bc>rst')
@@ -248,15 +248,41 @@ setMissing("xlink:title",  'string', ' http://www.example.org/D<c3><bc>rst')
 setMissing("xlink:type",  'string', ' http://www.example.org/D<c3><bc>rst')
 setMissing("xlink:actuate",  'string', 'xlink:actuate = "onLoad"')
 
-setMissing("transform", "transform", "doto")
+setMissing("transform", "transform", "TODO!!!!!!!!")
 setMissing("result", "string", '<feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />')
 setMissing("horiz-adv-x", "number", "??")
-setMissing("keySplines", "comma-semmicolon-list", 'keySplines="0,0.5,0.5,1; 0.5,0,1,0.5; 0,0.5,0.5,1; 0,0.5,0.5,1" ')
+setMissing("keySplines", "cmm-scln-list", 'keySplines="0,0.5,0.5,1; 0.5,0,1,0.5; 0,0.5,0.5,1; 0,0.5,0.5,1" ')
 #‘keyPoints’ takes a semicolon-separated list of floating point values between 0 and 1
-setMissing("keyPoints", "semmicolon-list", 'keyPoints="0; 0.5; 1"')
+setMissing("keyPoints", "scln-list", 'in doc: <list-of-numbers>, a semicolon-separated list of floating point values between 0 and 1 : keyPoints="0; 0.5; 1"')
 # appears that space-semicolon seperated list will also work
 # calcMode="spline" keySplines="0 0 1 1; 0 0 1 1" 
-setMissing("keyTimes", "semmicolon-list", 'keySplines="0,0.5,0.5,1; 0.5,0,1,0.5; 0,0.5,0.5,1; 0,0.5,0.5,1" ')
+setMissing("keyTimes", "cmm-scln-list", 'keySplines="0,0.5,0.5,1; 0.5,0,1,0.5; 0,0.5,0.5,1; 0,0.5,0.5,1" ')
+
+setMissing("bbox", "cmm-4list",
+'comma-separated list of exactly four numbers specifying, in order, the lower left x, lower left y, upper right x, and upper right y of the bounding box for the complete font'
+)
+setMissing("viewBox", "cmm-4list", '(<min-x>, <min-y>, <width> and <height>): viewBox="0 0 1500 1000"' )
+
+setMissing("begin", "scln-list", 'beginValueList')
+
+setMissing('end', "scln-list", "'end-value-list'")
+setMissing('preserveAspectRatio','special-string', 'preserveAspectRatio="[defer] <align> [<meetOrSlice>]"')
+setMissing('g1', "cmm-list", 'equence (comma-separated) of glyph names')
+setMissing("attributeName","string",'ex: attributeName="bar"')
+setMissing("contentStyleType","string", 'Identifies the default style sheet language: ex: contentStyleType = "text/css"')
+setMissing("d", "path-data", "ToDO!!!!! path-data")
+setMissing("panose-1", "ws-list{10}", "The Panose-1 number, consisting of ten decimal integers, separated by whitespace" )
+setMissing("kernelUnitLength" , "number-optional-number", "TODO !!!!!!!!!!!!!!")
+
+setMissing("lang", "cmm-list", "comma-separated list of language names" )
+setMissing("xlink:actuate", "choice","for <a> must be 'onRequest', for rest is 'onLoad'")
+
+setMissing("media", "cmm-list", "comma-seperated list of media-descriptors")
+
+setMissing("xlink:href", "iri", "iri")
+setMissing("viewTarget", "string", 'viewTarget = "XML_Name [XML_NAME]*"')
+setMissing("to","string", "in doc is <value>")
+setMissing("baseProfile", "string", 'Describes the minimum SVG language profile that the author believes is necessary to correctly render the content: ex "none"')
 
 # missingType.info.df[1, 9]<-"String"
 # missingType.info.df[2,10]<-'xml:lang=""en-GB"'
