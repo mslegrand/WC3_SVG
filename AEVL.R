@@ -271,6 +271,8 @@ setMissing('g1', "cmm-list", 'equence (comma-separated) of glyph names')
 setMissing("attributeName","string",'ex: attributeName="bar"')
 setMissing("contentStyleType","string", 'Identifies the default style sheet language: ex: contentStyleType = "text/css"')
 setMissing("d", "path-data", "ToDO!!!!! path-data")
+setMissing("path", "path-data", "ToDO!!!!! path-data")
+
 setMissing("panose-1", "ws-list{10}", "The Panose-1 number, consisting of ten decimal integers, separated by whitespace" )
 setMissing("kernelUnitLength" , "number-optional-number", "TODO !!!!!!!!!!!!!!")
 
@@ -284,6 +286,7 @@ setMissing("viewTarget", "string", 'viewTarget = "XML_Name [XML_NAME]*"')
 setMissing("to","string", "in doc is <value>")
 setMissing("baseProfile", "string", 'Describes the minimum SVG language profile that the author believes is necessary to correctly render the content: ex "none"')
 
+setMissing("target", "choice", 'target = "_replace" | "_self" | "_parent" | "_top" | "_blank" | "<XML-Name>"')
 # missingType.info.df[1, 9]<-"String"
 # missingType.info.df[2,10]<-'xml:lang=""en-GB"'
 # 
