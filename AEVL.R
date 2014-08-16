@@ -137,29 +137,29 @@ p_valLnk<-function(ns){ # this may be too simply???
   c(val=val, link=lnks)  
 }
 
-doValLink<-function(doc,id){
-  idDes<-paste("//*[@id='",id,"']",sep="")
-  nodeSet<-getNodeSet(doc,idDes)
-  valLnk<-data.frame()
-  if(length(nodeSet)>0){
-    ntag<-xmlName(nodeSet[[1]])
-#     if(ntag!="dt"){
-#       cat("tnag=",ntag," id=",id,"\n")
-#     }
-    
-    valLnk<-switch(ntag,
-                   "dt"= dt_valLnk(nodeSet),
-                   "a" = a_valLnk(nodeSet),
-                   "p" = p_valLnk(nodeSet),
-                   "h2"= dt_valLnk(nodeSet),
-                    c(NA,NA)
-    )  
-  }
-  if(length(valLnk)>2){
-    cat("length(valLnk)=",length(valLnk)," tnag=",ntag," id=",id,"\n")
-  }
-  valLnk
-}
+# doValLink<-function(doc,id){
+#   idDes<-paste("//*[@id='",id,"']",sep="")
+#   nodeSet<-getNodeSet(doc,idDes)
+#   valLnk<-data.frame()
+#   if(length(nodeSet)>0){
+#     ntag<-xmlName(nodeSet[[1]])
+# #     if(ntag!="dt"){
+# #       cat("tnag=",ntag," id=",id,"\n")
+# #     }
+#     
+#     valLnk<-switch(ntag,
+#                    "dt"= dt_valLnk(nodeSet),
+#                    "a" = a_valLnk(nodeSet),
+#                    "p" = p_valLnk(nodeSet),
+#                    "h2"= dt_valLnk(nodeSet),
+#                     c(NA,NA)
+#     )  
+#   }
+#   if(length(valLnk)>2){
+#     cat("length(valLnk)=",length(valLnk)," tnag=",ntag," id=",id,"\n")
+#   }
+#   valLnk
+# }
 
 
 # do.Page<-function(avel, page){
@@ -177,41 +177,101 @@ doValLink<-function(doc,id){
 #   page.df
 # }
 
-do.Page<-function(avel, onePage){
-  #page.df<-avel[avel$page==onePage,]
-  page.dt<-avel[page==onePage,]
-  ids<-page.dt$loc
-  ids<-page.dt$loc
-  url<-paste("http://www.w3.org/TR/SVG/",onePage, sep="") 
-  script<-getURL(url)
-  doc <- htmlParse(script)  
-  res1<-lapply(ids, function(id){ doValLink(doc,id) } )
-  #res1<-lapply(res1, function(x){data.frame(x)})
-  res2<-do.call(rbind, res1)
-  page.dt$val<-res2[,1]
-  page.dt$lnk<-res2[,2]
-  page.dt
-}
+# do.Page<-function(avel, onePage){
+#   #page.df<-avel[avel$page==onePage,]
+#   page.dt<-avel[page==onePage,]
+#   ids<-page.dt$loc
+#   ids<-page.dt$loc
+#   url<-paste("http://www.w3.org/TR/SVG/",onePage, sep="") 
+#   script<-getURL(url)
+#   doc <- htmlParse(script)  
+#   res1<-lapply(ids, function(id){ doValLink(doc,id) } )
+#   #res1<-lapply(res1, function(x){data.frame(x)})
+#   res2<-do.call(rbind, res1)
+#   page.dt$val<-res2[,1]
+#   page.dt$lnk<-res2[,2]
+#   page.dt
+# }
 
 #do.Page(AVEL.df, "fonts.html")->tmp.1.df
 #do.Page(AVEL.dt, "fonts.html")->tmp.1.dt
 #do.Page(AVEL.df, pages[17])->tmp.df
 
 
-do.all.Pages<-function(AVEL.df){
-  pages<-unique(AVEL.df$page)
+# do.all.Pages<-function(AVEL.df){
+#   pages<-unique(AVEL.df$page)
+#   res11<-lapply(1:length(pages), 
+#                 function(i){   page<-pages[i];
+#                                #cat("i=",i," page=",page,"\n");
+#                                df<-do.Page(AVEL.df, page); 
+#                                #cat("dim(df)=",dim(df),"\n");
+#                                df<-as.matrix(df);
+#                                df})
+# #   res22 <- as.data.frame(data.table::rbindlist(res11))
+# #   head(res22)
+#   res22<-as.data.frame(do.call(rbind,res11),stringsAsFactors = F)
+#   res22
+# }
+
+#returns data.table
+doValLink<-function(doc,id){
+  idDes<-paste("//*[@id='",id,"']",sep="")
+  nodeSet<-getNodeSet(doc,idDes)
+  valLnk.dt<-data.table()
+  if(length(nodeSet)>0){
+    ntag<-xmlName(nodeSet[[1]])
+    #     if(ntag!="dt"){
+    #       cat("tnag=",ntag," id=",id,"\n")
+    #     }
+    
+    valLnk<-switch(ntag,
+                   "dt"= dt_valLnk(nodeSet),
+                   "a" = a_valLnk(nodeSet),
+                   "p" = p_valLnk(nodeSet),
+                   "h2"= dt_valLnk(nodeSet),
+                   c(NA,NA)
+    )
+    if(length(valLnk)>2){ #debug code
+      cat("length(valLnk)=",length(valLnk)," tnag=",ntag," id=",id,"\n")
+    }
+    valLnk.dt<-data.table(val=valLnk[1], lnk=valLnk[2])
+    
+  }
+  valLnk.dt
+}
+
+do.Page<-function(avel, onePage){
+  #page.df<-avel[avel$page==onePage,]
+  page.dt<-avel[page==onePage,]
+  ids<-page.dt$loc
+  #ids<-page.dt$loc
+  url<-paste("http://www.w3.org/TR/SVG/",onePage, sep="") 
+  script<-getURL(url)
+  doc <- htmlParse(script) 
+  #instead of using ids, we go over each row in pages.dt
+  res1<-lapply(ids, function(id){ doValLink(doc,id) } )
+  #res1<-lapply(res1, function(x){data.frame(x)})
+  res2<-rbindlist(res1)
+  page.dt<-cbind(page.dt,res2)
+}
+
+do.all.Pages<-function(avel){
+  pages<-unique(avel$page)
   res11<-lapply(1:length(pages), 
                 function(i){   page<-pages[i];
                                #cat("i=",i," page=",page,"\n");
-                               df<-do.Page(AVEL.df, page); 
+                               dt<-do.Page(avel, page); 
                                #cat("dim(df)=",dim(df),"\n");
-                               df<-as.matrix(df);
-                               df})
-#   res22 <- as.data.frame(data.table::rbindlist(res11))
-#   head(res22)
-  res22<-as.data.frame(do.call(rbind,res11),stringsAsFactors = F)
+                               #df<-as.matrix(df);
+                               #df
+                               })
+  #   res22 <- as.data.frame(data.table::rbindlist(res11))
+  #   head(res22)
+  #res22<-as.data.frame(do.call(rbind,res11),stringsAsFactors = F)
+  res22<-rbindlist(res11)
   res22
 }
+
 
 pages<-unique(AVEL.dt$page)
 
@@ -225,7 +285,7 @@ pages<-unique(AVEL.dt$page)
 # }
 
 AVEL2.df<-do.all.Pages(AVEL.dt)
-row.names(AVEL2.df)<-NULL
+#row.names(AVEL2.df)<-NULL
 treatValueAs<-(AVEL2.df$lnk)
 #cat(class(treatValueAs),"\n")
 strsplit(treatValueAs,"#")->treatValueAs
