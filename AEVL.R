@@ -219,11 +219,7 @@ doValLink<-function(doc,id){
   nodeSet<-getNodeSet(doc,idDes)
   valLnk.dt<-data.table()
   if(length(nodeSet)>0){
-    ntag<-xmlName(nodeSet[[1]])
-    #     if(ntag!="dt"){
-    #       cat("tnag=",ntag," id=",id,"\n")
-    #     }
-    
+    ntag<-xmlName(nodeSet[[1]])    
     valLnk<-switch(ntag,
                    "dt"= dt_valLnk(nodeSet),
                    "a" = a_valLnk(nodeSet),
@@ -241,33 +237,20 @@ doValLink<-function(doc,id){
 }
 
 do.Page<-function(avel, onePage){
-  #page.df<-avel[avel$page==onePage,]
   page.dt<-avel[page==onePage,]
   ids<-page.dt$loc
-  #ids<-page.dt$loc
   url<-paste("http://www.w3.org/TR/SVG/",onePage, sep="") 
   script<-getURL(url)
   doc <- htmlParse(script) 
-  #instead of using ids, we go over each row in pages.dt
+  #instead of using ids, we should go over each row in pages.dt
   res1<-lapply(ids, function(id){ doValLink(doc,id) } )
-  #res1<-lapply(res1, function(x){data.frame(x)})
   res2<-rbindlist(res1)
   page.dt<-cbind(page.dt,res2)
 }
 
 do.all.Pages<-function(avel){
   pages<-unique(avel$page)
-  res11<-lapply(1:length(pages), 
-                function(i){   page<-pages[i];
-                               #cat("i=",i," page=",page,"\n");
-                               dt<-do.Page(avel, page); 
-                               #cat("dim(df)=",dim(df),"\n");
-                               #df<-as.matrix(df);
-                               #df
-                               })
-  #   res22 <- as.data.frame(data.table::rbindlist(res11))
-  #   head(res22)
-  #res22<-as.data.frame(do.call(rbind,res11),stringsAsFactors = F)
+  res11<-lapply(pages, function(page){ dt<-do.Page(avel, page)})
   res22<-rbindlist(res11)
   res22
 }
