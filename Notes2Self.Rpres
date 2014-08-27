@@ -1,0 +1,164 @@
+Notes2Self
+========================================================
+author: 
+date: 
+
+Links
+====
+* [Attributes and Properties that can be animated](http://www.w3.org/TR/SVG/animate.html#AnimationAttributesAndProperties)
+
+* https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute
+
+
+So far
+===
+So far the attrib values are
+
+1. vector or list: "aa bb cc"
+2. a named list: "m25 r45 z" (look this up)
+3. a list of points: "1,2;3,4" or "1 2; 3 4"
+4.
+
+
+Examining Attrib values with no links
+========================================================
+
+- We first exclude all attrs with a | symbol, since these
+are presumably choices
+- we are left 455 such values (AVEL.NOLNK2)
+- This contains 37 unque values
+- [great example link:](http://www.w3.org/TR/xmlschema-0/) 
+
+Frequency Dist
+========================================================
+
+```{r}
+load('AVEL.RData')
+head(freqDist.df, n=10)
+```
+
+Plot Head freqDist
+===
+```{r}
+plot(head(freqDist,n=10))
+```
+
+name is id name
+========================================================
+
+valid names??
+
+class attribute
+====
+is list of white space seperated classes
+example:
+class="dog cat bird"
+
+style attribute
+===
+The ‘style’ attribute allows per-element style rules to be specified directly on a given element. When CSS styling is used, CSS inline style is specified by including semicolon-separated property declarations of the form "name : value" within the ‘style’ attribute
+example??
+
+style="color:red;fill:blue"
+
+requiredExtensions  =list-of-extensions
+===
+The value is a list of IRI references which identify the required extensions, with the individual values separated by white space. Determines whether all of the named extensions are supported by the user agent. If all of the given extensions are supported, then the attribute evaluates to true; otherwise, the current element and its children are skipped and thus will not be rendered.
+Animatable: no.
+If a given IRI reference contains white space within itself, that white space must be escaped.
+
+If the attribute is not present, then its implicit return value is "true". If a null string or empty string value is given to attribute ‘requiredExtensions’, the attribute returns "false".
+
+IRI example: 
+===
+"http://example.com/someDrawing.svg""
+
+List of Features
+===
+requiredFeatures = list-of-features
+The value is a list of feature strings, with the individual values separated by white space. Determines whether all of the named features are supported by the user agent. Only feature strings defined in the Feature String appendix are allowed. If all of the given features are supported, then the attribute evaluates to true; otherwise, the current element and its children are skipped and thus will not be rendered.
+Animatable: no.
+
+transform attribute
+===
+The value of the ‘transform’ attribute is a <transform-list>, which is defined as a list of transform definitions, which are applied in the order provided. The individual transform definitions are separated by whitespace and/or a comma. The available types of transform definitions include:
+* matrix: 
+* translate
+* scale
+* rotate
+* skewX
+* skewY
+
+see [details](http://www.w3.org/TR/SVG/coords.html#TransformAttribute)
+
+transform attribute components
+===
+
+* ```matrix(<a> <b> <c> <d> <e> <f>)```, which specifies a transformation in the form of a transformation matrix of six values. matrix(a,b,c,d,e,f) is equivalent to applying the transformation matrix [a b c d e f].
+ 
+- ```translate(<tx> [<ty>])```, which specifies a translation by tx and ty. If ```<ty>``` is not provided, it is assumed to be zero.
+ 
+* ```scale(<sx> [<sy>])```, which specifies a scale operation by sx and sy. If ```<sy>``` is not provided, it is assumed to be equal to <sx>.
+
+transform attribute components
+===
+ 
+* ```rotate(<rotate-angle> [<cx> <cy>])```, which specifies a rotation by <rotate-angle> degrees about a given point.
+If optional parameters ```<cx> and <cy>``` are not supplied, the rotate is about the origin of the current user coordinate system. The operation corresponds to the matrix [cos(a) sin(a) -sin(a) cos(a) 0 0].
+If optional parameters <cx> and <cy> are supplied, the rotate is about the point (cx, cy). The operation represents the equivalent of the following specification: ```translate(<cx>, <cy>) rotate(<rotate-angle>) translate(-<cx>, -<cy>).```
+
+transform attribute components
+===
+
+* ```skewX(<skew-angle>)```, which specifies a skew transformation along the x-axis.
+ 
+* ```skewY(<skew-angle>)```, which specifies a skew transformation along the y-axis.
+
+filter-primitive-reference (1/2)
+===
+```result = "<filter-primitive-reference>"```
+Assigned name for this filter primitive. If supplied, then graphics that result from processing this filter primitive can be referenced by an ‘in’ attribute on a subsequent filter primitive within the same ‘filter’ element. If no value is provided, the output will only be available for re-use as the implicit input into the next filter primitive if that filter primitive provides no value for its ‘in’ attribute.
+
+filter-primitive-reference (2/2)
+===
+Note that a ```<filter-primitive-reference>``` is not an XML ID; instead, a ````<filter-primitive-reference>``` is only meaningful within a given ‘filter’ element and thus have only local scope. It is legal for the same ```<filter-primitive-reference>``` to appear multiple times within the same ‘filter’ element. When referenced, the ```<filter-primitive-reference>``` will use the closest preceding filter primitive with the given result.
+Animatable: yes.
+
+<number>
+===
+- for font/glyph/missing-glyph elements 
+
+"<lists>"
+===
+used in context of 
+
+-animate, 
+
+* animateColor, 
+* animateMotion, 
+* animateTransform 
+for 
+
+* keySplines
+* keyTimes
+*values
+
+
+keySplines
+===
+keySplines = "<list>"
+A set of Bézier control points associated with the ‘keyTimes’ list, defining a cubic Bézier function that controls interval pacing. The attribute value is a semicolon-separated list of control point descriptions. Each control point description is a set of four values: x1 y1 x2 y2, describing the Bézier control points for one time segment. Note: SMIL allows these values to be separated either by commas with optional whitespace, or by whitespace alone. The ‘keyTimes’ values that define the associated segment are the Bézier "anchor points", and the ‘keySplines’ values are the control points. Thus, there must be one fewer sets of control points than there are ‘keyTimes’.
+
+The values must all be in the range 0 to 1.
+keyTimes
+===
+keyTimes = "<list>"
+A semicolon-separated list of time values used to control the pacing of the animation. Each time in the list corresponds to a value in the ‘values’ attribute list, and defines when the value is used in the animation function. Each time value in the ‘keyTimes’ list is specified as a floating point value between 0 and 1 (inclusive), representing a proportional offset into the simple duration of the animation element.
+
+
+values
+===
+values = "<list>"
+A semicolon-separated list of one or more values. Vector-valued attributes are supported using the vector syntax of the ‘attributeType’ domain. Per the SMIL specification, leading and trailing white space, and white space before and after semicolon separators, is allowed and will be ignored. Except for any SVG-specific rules explicitly mentioned in this specification, the normative definition for this attribute is the SMIL Animation specification. In particular, see SMIL Animation: 'values' attribute ([SMILANIM], section 3.2.2).
+
+
