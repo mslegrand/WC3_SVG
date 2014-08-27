@@ -39,6 +39,14 @@ getSVGJenkins_file.urls<-function(){
   file.urls<-sapply(file.name.stems, build.url, USE.NAMES=F)
 }
 
+getSVGCodingParidise_files.urls<-function(){
+  indx.url="http://codinginparadise.org/projects/svgweb/samples/svg-files/"
+  script<-getURL(indx.url)
+  doc <- htmlParse(script)
+  getHTMLLinks(doc)->links
+  build.url<-function(file.name){paste(indx.url,file.name,sep="")}
+  file.urls<-sapply(links, build.url, USE.NAMES=F)
+}
 
 #should I download all the files?
 getCharCounts<-function(str1){
@@ -262,12 +270,23 @@ apply(as.matrix(examples.dt), 1, getExampleFromRow)->examples
 
 head(examples.dt)
 # 
-# file.out<-"./examples.txt"
-# for(i in 1:nrow(examples.dt)){
-#   r<-examples.dt[i,]
-#   shead<-paste("codex=",r$codex, "; tag=",r$tag, " attrib=", r$attrs, "\n")
-#   sbod<-toString.XMLNode(examples[[i]])
-#   send<-"\n==================================================\n"
-#   txt<-paste(shead, sbod, send, sep="\n")
-# }
+file.out<-"./examples3.txt"
+send<-"\n-----------------------------------------\n\n"
+txt<-c("examples\n",send)
+separ<-"=================================================="
+
+for(i in 1:nrow(examples.dt)){
+  r<-examples.dt[i,]
+  shead<-paste("codex=",r$codex, "; expanded:", codexVal2Name(r$codex),
+               ";\n tag=",r$tag, " attrib=", r$attrs)
+  #sbod<-toString.XMLNode(examples[[i]])
+  sbod<-xmlAttrs(examples[[i]])[r$attrs]
+  txt<-c( txt, shead, separ, sbod, send)
+}
+
+txt<-c(txt,send)
+txt<-paste(txt, collapse="\n")
+write(txt, file=file.out)
+
+
 # 
