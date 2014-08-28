@@ -12,4 +12,4 @@ showMe<-function(...){
   cat(txt,"\n")
   invisible(txt)
 }
-showMe(file.name, rile.name)
+#showMe(file.name, rile.name)
