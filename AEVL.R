@@ -227,12 +227,13 @@ AttributeElementValueTable<-function(){
     missing.dt[attr=="target", ':='(treatValueAs="choice", example='target = "_replace" | "_self" | "_parent" | "_top" | "_blank" | "<XML-Name>"')]
     missing.dt[attr=='kernelMatrix', ':='(treatValueAs='wsp-list', example='the list of <number>s that make up the kernel matrix for the convolution. Values are separated by space characters and/or a comma. The number of entries in the list must equal <orderX> times <orderY>.'
     )] # dim specified by order, hmmm! maybe we should overload the order!!
-    missing.dt[attr=="origin",  ':='(treatValueAs="defalut", example="literally the string default, has no effect in SVG!!!")]
+    missing.dt[attr=="origin",  ':='(treatValueAs="default", example="literally the string default, has no effect in SVG!!!")]
     missing.dt[attr=="type", ':='(treatValueAs="string", example='defaluts to "text/css"')]
     missing.dt[attr=="title", ':='(treatValueAs="string", example='example: <A href="http://someplace.com/neatstuff.gif" title="Me scuba diving" me scuba diving last summer </A> ')] 
     #may provide tooltip
     missing.dt[attr=="name",  ':='(treatValueAs="string", example="color profile: complicated???")]
     missing.dt[attr=='y', ':='(treatValueAs='string', example='a single value')]
+    missing.dt[attr=='by', ':='(treatValueAs='value', example='a single value')]
     missing.dt[attr=='unicode-range', ':='(treatValueAs='cmm-list', example=
                                              'list of comma seperated unicodes, unicode-range: U+26               /* single_codepoint */
              unicode-range: U+0025-00FF        /* codepoint_range */
@@ -254,6 +255,29 @@ AttributeElementValueTable<-function(){
     treatAs<-mrow$treatValueAs
     AVEL2.dt[r.indx, treatValueAs:=treatAs]  
   }
+  
+  #final processing
+  adjList<-list(
+  "ignore"= c( "coordinate", "string", "number", "choice", "anything", "string", "iri", 
+                  "length", "integer", "default", "coordinate", "id", "sourcegraphic" , 
+                  "termoutermostsvgelement", "filterprimitiveinattribute", "value", "funciri" ),
+  "wsp-list "=c("lengths",  "numbers", "coordinates", "special-string" ),
+  "cmm-wsp-list"="pointsbnf"
+  )
+  
+  for(n in names(adjList)){
+    for(i in adjList[[n]]){    
+      AVEL2.dt[treatValueAs==i, treatValueAs:=n]
+    }
+  }
+  
+  
+  AVEL2.dt[treatValueAs=="transformlist", treatValueAs:="transform-list"]
+  AVEL2.dt[treatValueAs=="cmm-list {4}", treatValueAs:="cmm-list"]
+  AVEL2.dt[treatValueAs=="wsp-list {10}", treatValueAs:="wsp-list"]
+  AVEL2.dt[treatValueAs=="wsp-list ", treatValueAs:="wsp-list"]
+  
+  
   
   AVEL2.dt
 }
