@@ -4,18 +4,6 @@ library(XML)
 fread("AVETable.csv")->ave.dt
 ele.tags<-unique(ave.dt$element)
 
-# matrix=
-#   lable="matrix"
-#   paste(label, "(", 
-#                paste(x,collapse=","), 
-#               ") ", sep="")
-# translate =
-# scale
-# rotate
-# skewX
-# skewY
-# 
-
 
 svgPreproc<-list(
   "cmm-list" = function(x){paste(x, collapse=",")} ,
@@ -83,13 +71,14 @@ mapCenteredXY<-function(attrs){
     wh<-c(as.numeric(attrs[["width"]]), as.numeric(attrs[["height"]]))
     attrs[["xy"]]<- as.numeric(attrs[["cxy"]]) - wh/2
     attrs[["cxy"]]<-NULL
+    attrs<-attrSplitX(attrs,"x","y","xy")
   }
   attrs 
 }
 
 #preprocXtras
 #xy, cxy, rxy, xy1, xy2, wh
-attrSplitX<-function(attrs, a12, a1, a2){
+attrSplitX<-function(attrs,  a1, a2, a12){
   if(a12 %in% names(attrs)){
     attrs[c(a1,a2)]<-attrs[[a12]]
     attrs[[a12]]<-NULL
@@ -100,33 +89,21 @@ attrSplitX<-function(attrs, a12, a1, a2){
 
 splitAtt<-function(etag, x){
   ifelse(
-    nrow(ave.dt[element==ele.tag & (attr==x['a1'] | attr==x['a2']) ,])==2,
-    paste("attrSplitX(attrs, '" ,x['a1'], "','" ,x['a2'], "','" ,x['a12'], "')", sep=""),
+    nrow(ave.dt[element==etag & (attr==x['a1'] | attr==x['a2']) ,])==2,
+    paste("attrs<-attrSplitX(attrs, '" ,x['a1'], "','" ,x['a2'], "','" ,x['a12'], "')", sep=""),
     ""
   )
 }
 
-centerable<-function(){
+centerable<-function(ele.tag, ave.dt){
   ifelse(
     nrow(ave.dt[  element==ele.tag & 
                   (attr=='x' | attr=='y' | attr=='width' | attr=='height') ,]
-         )==5,
+         )==4,
     "attrs<-mapCenteredXY(attrs)",
     ""
   )  
 }
-
-preprocXtras=list(
-  c(a12="xy",a1='x',a2="y"),
-  c(a12="cxy",a1='cx',a2="cy"),
-  c(a12="rxy",a1='rx',a2="ry"),
-  c(a12="xy1",a1='x1',a2="y1"),
-  c(a12="xy2",a1='x2',a2="y2"),
-  c(a12="wh",a1='width',a2="height")
-)
-
-
-
 
 
 #"ignore cmm-list path-data-list wsp-list scln-list cmm-scln-list number-optional-number cln-scln-list cmm-wsp-list transform-list"
@@ -134,19 +111,30 @@ preprocXtras=list(
 linesVal<-function(tva, V1){
   c(
     txt1<-gsub( 'pat1',  V1, "indx<-sapply(names(attrs),function(x)grepl(x, 'pat1' ))"),
-    txt2<-gsub( 'pat2',  tva, "attrs[indx]<-lapply(attrs[indx], function(x){ ifelse(inherits(x,'list'), svgPreproc['pat2'](x), x) })")
+    txt2<-gsub( 'pat2',  tva, "attrs[indx]<-lapply(attrs[indx], function(x){ 
+                ifelse(inherits(x,'list'), svgPreproc[['pat2']](x), x) })")
   )
 } 
 
-ele.tag<-ele.tags[1]
+#ele.tag<-ele.tags[1]
 
 createEleFn<-function(ele.tag, ave.dt){
   ave.dt[element==ele.tag & treatValueAs!="ignore",]->ele.dt
   ele.treatments<-unique(ele.dt$treatValueAs)
   ele.dt[, paste(attr, collapse=" "), by=treatValueAs]->treat_attrs.dt
+
+  preprocXtras=list(
+    c(a12="xy",a1='x',a2="y"),
+    c(a12="cxy",a1='cx',a2="cy"),
+    c(a12="rxy",a1='rx',a2="ry"),
+    c(a12="xy1",a1='x1',a2="y1"),
+    c(a12="xy2",a1='x2',a2="y2"),
+    c(a12="wh",a1='width',a2="height")
+  )
+  
   
   lapply(preprocXtras,splitAtt, etag=ele.tag )->tmp22
-  tmp22<-c(tmp22, centerable())
+  tmp22<-c(tmp22, centerable(ele.tag, ave.dt) )
   tmp22[tmp22==""]<-NULL
   body1<-unlist(tmp22)
   split(treat_attrs.dt, rownames(treat_attrs.dt))->tmp
@@ -168,18 +156,123 @@ createEleFn<-function(ele.tag, ave.dt){
   fn  
 }
 
-fn<-createEleFn(ele.tag, ave.dt)
+#fn<-createEleFn(ele.tag, ave.dt)
 
 svgFn<-lapply(ele.tags, createEleFn, ave.dt=ave.dt )
 names(svgFn)<-ele.tags
-# body<-c()
-# for(i in 1:nrow(treat_attrs.dt)){
-#   xx<-linesVal( treat_attrs.dt[i,treatValueAs], treat_attrs.dt[i,V1] )
-#   body<-c(body,xx)
+
+svgFn<-c(svgFn,
+         list(
+           svgDoc=function(width=1150, height=860,  ... ){
+             args<-unlist(c(list( width=width, height=height), list(...)))
+             namespaceDefinitions<- list(
+               "http://www.w3.org/2000/svg",
+               xlink="http://www.w3.org/1999/xlink"
+             )
+             newXMLNode("svg", attrs=named(args), namespaceDefinitions = namespaceDefinitions, .children=unnamed(args)) 
+           },
+           getNode=function(rootNode,id){
+             kidV<-getNodeSet(rootNode, paste( '//*[@id="',id,'"]' ) )
+           }         
+         )
+         )
+
+#todo 
+#1. add default doc consuctor
+
+#2. add find node with a given id
+#3. alternative to with_svg?? at_svgNode[id](...)
+
+svgDoc.new<-function(width=1150, height=860,  ... ){
+  args<-unlist(c(list( width=width, height=height), list(...)))
+  namespaceDefinitions<- list(
+    "http://www.w3.org/2000/svg",
+    xlink="http://www.w3.org/1999/xlink"
+  )
+  rootNode<-newXMLNode("svg", attrs=named(args), namespaceDefinitions = namespaceDefinitions, .children=unnamed(args)) 
+  #todo: add options (such as duration)
+  x<-0
+  fn<-function(code=NULL){
+    s<-substitute(code)
+    if(length(s)==0){
+      rootNode
+    } else {
+      x<-eval(s, svgFn, parent.frame() ) 
+      x
+    }
+  }
+  class(fn)<-c("svgDoc",fn)
+  fn
+}
+
+"[[.svgDoc"<-function(doc,id="root"){
+  rootNode<-doc()
+#   parent<-ifelse(id=="root", rootNode, 
+#                  getNodeSet(rootNode, paste( '//*[@id="',id,'"]') ) )
+  
+  if(id=='root'){
+    parent<-rootNode
+  } else {
+    parent<-getNodeSet(rootNode, paste( '//*[@id="',id,'"]') ) 
+  }
+
+  
+  fn<-function(...){
+    s<-substitute(list(...))
+#     deparse(s)->txt
+#     cl<-parse(text=txt)
+#     kids<-eval(cl, svgFn)
+    kids<-eval(s, svgFn)
+     #eval(substitute(list(...), env=svgFn), parent.frame() ) 
+   addChildren(parent, kids=kids)
+   #eval on w 
+   #add the list to parent
+   parent
+  }
+  fn
+}
+
+# "[[.svgDoc"<-function(doc,id="root"){
+#   rootNode<-doc()
+#   #   parent<-ifelse(id=="root", rootNode, 
+#   #                  getNodeSet(rootNode, paste( '//*[@id="',id,'"]') ) )
+#   
+#   if(id=='root'){
+#     parent<-rootNode
+#   } else {
+#     parent<-getNodeSet(rootNode, paste( '//*[@id="',id,'"]') ) 
+#   }
+#   
+#   fn<-function(code){
+#     kid<-eval(substitute(code),svgFn, parent.frame() ) 
+#     addChildren(parent, kids=list(kid))
+#     #eval on w 
+#     #add the list to parent
+#     parent
+#   }
+#   fn
 # }
+# 
+# 
+# 
+# 
 
+with_svg<-function( code ){
+  svg.env<-svgFn
+  eval(substitute(code), svg.env, parent.frame() )
+}
 
-# tmp.d<-list(M=c(100,100), L=c(300,100), L=c(200,300), z="xx")
-# tmp.r<-svgPreproc[["path-data-list"]](tmp.d)
+unique(ave.dt[anim==TRUE,]$attr)->ani.atts
 
-#nrow(ave.dt[element==ele.tag & (attr=="x" | attr=="y") ,])==2
+svgDoc.new()->doc
+#doc[["root"]](rect(id="1", cxy=c(100,100), wh=c(100,100)))
+doc[["root"]](
+  rect(id="1", cxy=c(100,100), wh=c(100,100)),
+              polygon(id="poly.my", 
+#                       points=c(50,50,  0,100, 100,100)+10, 
+                      points=list(c(50,50),  c(0,100), c(100,100)), 
+                      fill="lime",
+                      #stroke="blue",
+                      "stroke-width"=10
+
+))
