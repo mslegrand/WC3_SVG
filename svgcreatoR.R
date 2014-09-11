@@ -4,6 +4,13 @@ library(XML)
 fread("AVETable.csv")->ave.dt
 ele.tags<-unique(ave.dt$element)
 
+# svgPreprocHelper<-function(x,sep1, sep2){  
+#   if(inherits(x,"list")){ #list
+#     paste(  sapply(x, function(y){paste(y, collapse=sep1)}), collapse=sep2  )   
+#   } else { #matrix
+#     paste(apply(x, 2, function(y)paste(y,collapse=sep1)), collapse=sep2)     
+#   }
+# }
 
 svgPreproc<-list(
   "cmm-list" = function(x){paste(x, collapse=",")} ,
@@ -19,19 +26,28 @@ svgPreproc<-list(
               } ,  
   "wsp-list" = function(x){paste(x, collapse=" ")} ,
   "scln-list" = function(x){paste(x, collapse=";")} ,
-  "cmm-scln-list" = function(x){ paste(
-                                    sapply(x, function(y){paste(y, collapse=",")}),
-                                    collapse=";"
-                                     )} ,
+  "cmm-scln-list" = function(x){ 
+    if(inherits(x,"list")){ #list
+      paste(  sapply(x, function(y){paste(y, collapse=",")}), collapse=";"  )   
+    } else { #matrix
+      paste(apply(x, 2, function(y)paste(y,collapse=",")), collapse=";")     
+    }                                
+  } ,
   "number-optional-number" = function(x){paste(x, collapse=",")} ,
-  "cln-scln-list"  = function(x){ paste(
-                                    sapply(x, function(y){paste(y, collapse=":")}),
-                                    collapse=";"
-                                  )} ,
-  "cmm-wsp-list" = function(x){ paste(
-                    sapply(x, function(y){paste(y, collapse=",")}),
-                    collapse=" "
-                  )} ,
+  "cln-scln-list"  = function(x){ 
+    if(inherits(x,"list")){ #list
+      paste(  sapply(x, function(y){paste(y, collapse=":")}), collapse=";"  )   
+    } else { #matrix
+      paste(apply(x, 2, function(y)paste(y,collapse=":")), collapse=";")     
+    }
+  } ,
+  "cmm-wsp-list" = function(x){ 
+    if(inherits(x,"list")){ #list
+        paste(  sapply(x, function(y){paste(y, collapse=",")}), collapse=" "  )   
+    } else { #matrix
+      paste(apply(x, 2, function(y)paste(y,collapse=",")), collapse=" ")     
+    }
+  } ,
   "transform-list" = function(x){ #at this point we do no length check
             names<-names(x)
             tmp<-lapply(names, function(ns){
@@ -112,7 +128,7 @@ linesVal<-function(tva, V1){
   c(
     txt1<-gsub( 'pat1',  V1, "indx<-sapply(names(attrs),function(x)grepl(x, 'pat1' ))"),
     txt2<-gsub( 'pat2',  tva, "attrs[indx]<-lapply(attrs[indx], function(x){ 
-                ifelse(inherits(x,'list'), svgPreproc[['pat2']](x), x) })")
+                ifelse(inherits(x,c('list','matrix')), svgPreproc[['pat2']](x), x) })")
   )
 } 
 
@@ -270,7 +286,8 @@ doc[["root"]](
   rect(id="1", cxy=c(100,100), wh=c(100,100)),
               polygon(id="poly.my", 
 #                       points=c(50,50,  0,100, 100,100)+10, 
-                      points=list(c(50,50),  c(0,100), c(100,100)), 
+                      #points=list(c(50,50),  c(0,100), c(100,100)), 
+                      points=matrix(c(50,50,  0,100, 100,100)+10, 2,3),
                       fill="lime",
                       #stroke="blue",
                       "stroke-width"=10
