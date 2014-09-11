@@ -221,29 +221,26 @@ svgDoc.new<-function(width=1150, height=860,  ... ){
   fn
 }
 
-"[[.svgDoc"<-function(doc,id="root"){
+"[[.svgDoc"<-function(doc,id=""){
   rootNode<-doc()
-#   parent<-ifelse(id=="root", rootNode, 
-#                  getNodeSet(rootNode, paste( '//*[@id="',id,'"]') ) )
-  
-  if(id=='root'){
-    parent<-rootNode
+  if(id==''){
+    fn<-function(...){
+      s<-substitute(list(...))
+      kids<-eval(s, svgFn)
+      kids
+    }
   } else {
-    parent<-getNodeSet(rootNode, paste( '//*[@id="',id,'"]') ) 
-  }
-
-  
-  fn<-function(...){
-    s<-substitute(list(...))
-#     deparse(s)->txt
-#     cl<-parse(text=txt)
-#     kids<-eval(cl, svgFn)
-    kids<-eval(s, svgFn)
-     #eval(substitute(list(...), env=svgFn), parent.frame() ) 
-   addChildren(parent, kids=kids)
-   #eval on w 
-   #add the list to parent
-   parent
+    if(id=='root'){
+      parent<-rootNode
+    } else {
+      parent<-getNodeSet(rootNode, paste( '//*[@id="',id,'"]') ) 
+    }  
+    fn<-function(...){
+      s<-substitute(list(...))
+      kids<-eval(s, svgFn)
+      addChildren(parent, kids=kids)
+      list(parent)
+    }    
   }
   fn
 }
