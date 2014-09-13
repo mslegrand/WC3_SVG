@@ -172,6 +172,8 @@ createEleFn<-function(ele.tag, ave.dt){
   fn  
 }
 
+
+
 #fn<-createEleFn(ele.tag, ave.dt)
 
 svgFn<-lapply(ele.tags, createEleFn, ave.dt=ave.dt )
@@ -192,6 +194,81 @@ svgFn<-c(svgFn,
            }         
          )
          )
+
+#we customize a little : Todo!!!  text , textPath , tspan
+svgFn$text=function(...){ 
+  args<-list(...) 
+  attrs<-named(args)
+  #abbreviations: will accept size or font-size, family or font-faminly, ...
+  attr.names<-names(attrs)
+  attr.names<-gsub("^(((style))|((weight))|((variant))|((size))|((family)))$", "font-\\1",attr.names, fixed=F)
+  attr.names<-gsub("^anchor$","text-anchor",attr.names)
+  names(attrs)<-attr.names
+  if(!is.null(attrs[["cxy"]])){
+    attrs[["text-anchor"]]<-'middle'
+    attrs[["dominant-baseline"]]="central"
+    attrs[["xy"]]=attrs[["cxy"]]
+    attrs[["cxy"]]=NULL
+  }
+  attrs<-mapArg(attrs,"xy", c("x","y"))
+  if( is.null(attrs[["text-anchor"]])){
+    attrs<-c(attrs, list("text-anchor"='c'))
+  }
+  if( is.null(attrs[["font-size"]])){
+    attrs<-c(attrs, list("font-size"="12px"))
+  }
+  if( is.null(attrs[["text-anchor"]])){
+    attrs<-c(attrs, list("text-anchor"='c'))
+  }
+  if(!(attrs[["text-anchor"]] %in% c("start","end", "middle"))){
+    attrs[["text-anchor"]]=switch(attrs[["text-anchor"]], "l"="start","r"="end","c"="middle","middle")
+  } 
+  text<-NULL
+  if("text" %in% attr.names){ ### use value instead of text???
+    text<-attrs["text"]
+    attrs["text"]<-NULL
+  }
+  #isolate(print(text))
+  node<-newXMLNode("text", attrs=attrs, .children=unnamed(args))
+  if(!is.null(text)){
+    xmlValue(node)<-text
+  } 
+  node  
+}
+
+#, colors=c("white","black"), offsets=c(0,100)
+#todo!!! add stops for linearGradient,  ‘radialGradien
+svgFn$linearGradient=function( ...){
+  as.p<-function(x){ 
+    if(!is.character(x))
+      paste(x,"%",sep="")
+  }
+  args<-list(...)
+  attrs<-named(args)
+  attrs<-mapArg(attrs,"xy1", c("x1","y1"))
+  attrs<-mapArg(attrs,"xy2", c("x2","y2"))
+
+  if("colors" %in% names(attrs)){
+    colors<-attrs[["colors"]]
+    attrs[["colors"]]<-NULL
+    if("offsets" %in% names(attrs)){
+      offsets<-attrs[["offsets"]]
+      attrs[["offsets"]]<-NULL
+    } else {
+      offsets<-seq(0,100,length.out=length(colors))
+    }
+    for(i in 1:length(colors)){
+      attrs.si<-list(offset=sprintf("%d%%", offsets[i]), "stop-color"= colors[i])
+      stopi<-newXMLNode("stop", attrs=attrs.si)
+      args<-c(args,stopi)
+    }
+  }
+  
+  grad<-newXMLNode("linearGradient", attrs=attrs, .children=unnamed(args))
+  grad    
+} 
+
+
 
 #todo 
 #1. add default doc consuctor
@@ -221,23 +298,27 @@ svgDoc.new<-function(width=1150, height=860,  ... ){
   fn
 }
 
+
+
+
 "[[.svgDoc"<-function(doc,id=""){
   rootNode<-doc()
   if(id==''){
     fn<-function(...){
       s<-substitute(list(...))
-      kids<-eval(s, svgFn)
+      kids<-eval(s, list2env(svgFn, parent=parent.frame() ) )
       kids
     }
   } else {
     if(id=='root'){
       parent<-rootNode
     } else {
-      parent<-getNodeSet(rootNode, paste( '//*[@id="',id,'"]') ) 
+      parent<-getNodeSet(rootNode, paste( '//*[@id="',id,'"]' , sep=""))[[1]]
     }  
     fn<-function(...){
       s<-substitute(list(...))
-      kids<-eval(s, svgFn)
+      #print(ls(list2env(svgFn, parent=parent.frame())))
+      kids<-eval(s, list2env(svgFn, parent.frame() ) )
       addChildren(parent, kids=kids)
       list(parent)
     }    
@@ -270,6 +351,21 @@ svgDoc.new<-function(width=1150, height=860,  ... ){
 # 
 # 
 
+# doc<-svgDoc.new()
+# textBox<-function(doc, id, cxy, wh, txt){
+#   cat("cxy=c(",cxy[1],",",cxy[2],")\n")
+#   doc[["root"]]({
+#     (cat("root: cxy=c(",cxy[1],",",cxy[2],")\n"))
+#     g(id="my.group",
+#       rect( cxy=cxy, wh=wh,  fill="lightblue", stroke="black"),
+#       text( cxy=cxy ,text=txt)      
+#     )
+#   })
+# }
+# 
+# tmp<-textBox(doc, id="my.box", cxy=c(50,50), wh=c(60,15), txt="hello")
+
+
 with_svg<-function( code ){
   svg.env<-svgFn
   eval(substitute(code), svg.env, parent.frame() )
@@ -277,16 +373,20 @@ with_svg<-function( code ){
 
 unique(ave.dt[anim==TRUE,]$attr)->ani.atts
 
-svgDoc.new()->doc
+# svgDoc.new()->doc
 #doc[["root"]](rect(id="1", cxy=c(100,100), wh=c(100,100)))
-doc[["root"]](
-  rect(id="1", cxy=c(100,100), wh=c(100,100)),
-              polygon(id="poly.my", 
-#                       points=c(50,50,  0,100, 100,100)+10, 
-                      #points=list(c(50,50),  c(0,100), c(100,100)), 
-                      points=matrix(c(50,50,  0,100, 100,100)+10, 2,3),
-                      fill="lime",
-                      #stroke="blue",
-                      "stroke-width"=10
+# doc[["root"]](
+#   rect(id="1", cxy=c(100,100), wh=c(100,100)),
+#               polygon(id="poly.my", 
+# #                       points=c(50,50,  0,100, 100,100)+10, 
+#                       #points=list(c(50,50),  c(0,100), c(100,100)), 
+#                       points=matrix(c(50,50,  0,100, 100,100)+10, 2,3),
+#                       fill="lime",
+#                       #stroke="blue",
+#                       "stroke-width"=10
+# 
+# ))
 
-))
+# doc[["root"]](
+#   linearGradient(id="my.grad",xy1=c("0%","0%"), xy2=c("0%","100%"), colors=c( "rgb(255,255,0)", "rgb(255,0,0)" ) )
+# )
