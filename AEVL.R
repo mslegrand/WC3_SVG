@@ -221,7 +221,9 @@ AttributeElementValueTable<-function(){
     missing.dt[attr=="media", ':='(treatValueAs="cmm-list", example="comma-seperated list of media-descriptors")]
     missing.dt[attr=="xlink:href", ':='(treatValueAs="iri", example="iri")]
     missing.dt[attr=="viewTarget", ':='(treatValueAs="string", example='viewTarget = "XML_Name [XML_NAME]*"')]
-    missing.dt[attr=="to",':='(treatValueAs="string", example="in doc is <value>")]
+    #missing.dt[attr=="to",':='(treatValueAs="string", example="in doc is <value>")]
+    missing.dt[attr=="to",':='(treatValueAs="cmm-list", example="animate")]
+    missing.dt[attr=="from",':='(treatValueAs="cmm-list", example="animate")]
     missing.dt[attr=="baseProfile", ':='(treatValueAs="string", example='Describes the minimum SVG language profile that the author believes is necessary to correctly render the content: ex "none"')]
     
     missing.dt[attr=="target", ':='(treatValueAs="choice", example='target = "_replace" | "_self" | "_parent" | "_top" | "_blank" | "<XML-Name>"')]
