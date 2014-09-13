@@ -151,7 +151,7 @@
 "150","restart","animateTransform",FALSE,"animate.html#RestartAttribute","animate.html","RestartAttribute","""always"" | ""whenNotActive"" | ""never""",NA,"ignore"
 "151","restart","set",FALSE,"animate.html#RestartAttribute","animate.html","RestartAttribute","""always"" | ""whenNotActive"" | ""never""",NA,"ignore"
 "152","rotate","animateMotion",FALSE,"animate.html#RotateAttribute","animate.html","RotateAttribute","<number> | auto | auto-reverse","types.html#DataTypeNumber","ignore"
-"153","to","set",FALSE,"animate.html#SetElementToAttribute","animate.html","SetElementToAttribute","<value>",NA,"ignore"
+"153","to","set",FALSE,"animate.html#SetElementToAttribute","animate.html","SetElementToAttribute","<value>",NA,"cmm-list"
 "154","to","animate",FALSE,"animate.html#ToAttribute","animate.html","ToAttribute","""<value>""",NA,"ignore"
 "155","to","animateColor",FALSE,"animate.html#ToAttribute","animate.html","ToAttribute","""<value>""",NA,"ignore"
 "156","to","animateMotion",FALSE,"animate.html#ToAttribute","animate.html","ToAttribute","""<value>""",NA,"ignore"
