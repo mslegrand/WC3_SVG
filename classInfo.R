@@ -19,9 +19,7 @@ library(assertthat)
 source("showMe.R")
 
 #@# we grap all table of type class info from page
-  
 #   getPresentationLinkInfo<-function(page){
-  
 #page="painting.html"
 extractOnePropPage<-function(page){
   url<-paste("http://www.w3.org/TR/SVG/",page,sep="")
@@ -30,15 +28,6 @@ extractOnePropPage<-function(page){
   doc <- htmlParse(script)
   
   getNodeSet(doc, paste("//table[@class='propinfo']",sep=""))->ns.prop.info
-#   list()
-#   for(node in ns.prop.info){
-#     attrs<-xmlAttrs(node)
-#     if("summary" %in% names(attrs)){
-#       cat(attrs["summary"],"\n")
-#       dt<-cbind(summary=attrs["summary"],data.table(readHTMLTable(node)))
-#       print(dt)
-#     }
-#   }
   tableExtractor<-function(node){
     attrs<-xmlAttrs(node)
     if("summary" %in% names(attrs)){
@@ -51,7 +40,6 @@ extractOnePropPage<-function(page){
   }
   propTables<-lapply(ns.prop.info, tableExtractor)
   propTables<-rbindlist(propTables)
-  #setnames(propTables, "Summary","Value", "")
 }
 
 extractAllProps<-function(){
@@ -68,7 +56,6 @@ extractAllProps()->prop.dt
 cleanPropsTable<-function(prop.dt){
   
   prop.dt[,attr:=gsub(" property","",attr) ]
-  #prop.dt[,aspect=gsub(":","",aspect)]
   prop.dt[,aspect:=sapply(str_split(aspect,":"), function(x)x[[1]])] 
   prop.dt[,value:=gsub("[‘’]","",value) ]
   prop.dt[,value:=gsub("\\s+"," ",value) ]
@@ -83,13 +70,4 @@ cleanPropsTable<-function(prop.dt){
  
 cleanPropsTable(prop.dt)
 
-#write.table(prop.dt,"test.csv",sep=",",row.names=FALSE,quote=FALSE)
-write.table(prop.dt,"test.csv",sep=",",row.names=FALSE,quote=FALSE)
-#write(prop.dt, "prop.csv", )
-#     #la.dt[, getPresLinkInfo(doc,  attr, loc) ]
-#     #lapply(locs, function(loc)getPresLinkInfo(doc, loc))->dts
-#     lapply(1:nrow(la.dt), function(i)getPresLinkInfo(doc, la.dt$attr[i], la.dt$loc[i]))->dts
-#     #lapply(1:nrow(tmp.df), function(i)paste(tmp.df$x[i],tmp.df$y[i]) )
-#     
-#     rbindlist(dts)  
-#   }
+write.table(prop.dt,"presentationAttr.csv",sep=",",row.names=FALSE,quote=FALSE)
