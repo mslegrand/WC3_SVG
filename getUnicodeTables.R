@@ -32,3 +32,21 @@ toWrite<-c("Greek", "Hebrew", "Superscripts and Subscripts", "Mathematical Opera
            "Miscellaneous Technical", "Dingbats", "Arrows")
 
 sapply(toWrite, function(nm){ writeToFile(nm, codeTables[[nm]]) } )
+
+url<-"http://www.johndcook.com/math_symbols.html"
+
+ur<-"http://en.wikipedia.org/wiki/List_of_logic_symbols" #(small set)
+ 
+url<-"http://en.wikipedia.org/wiki/Mathematical_operators_and_symbols_in_Unicode" #lots, but just the unicode
+
+url<-"http://milde.users.sourceforge.net/LUCR/Math/unimathsymbols.xhtml"
+
+# and the best todate!
+url<-"http://milde.users.sourceforge.net/LUCR/Math/unimathsymbols.xhtml"
+readHTMLTable(url, stringsAsFactors = FALSE, header=T)->codeTables2
+rbindlist(codeTables2)->code.DT
+code.DT<-code.DT[,.(no.,LaTeX,requirements)]
+write.csv(code.DT, "Unicode/unicodeLatex.csv", row.names=F)
+
+# want to save no. , LateX, class and requrirements
+
