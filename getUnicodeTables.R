@@ -25,7 +25,7 @@ str(codeTables)
 
 
 writeToFile<-function(cname, ctable){
-  write.csv(ctable,paste0("Unicode/", cname,".csv"), row.names=F)
+  write.csv(ctable,paste0("dataTableLink/" ,"Unicode/", cname,".csv"), row.names=F)
 }
 
 toWrite<-c("Greek", "Hebrew", "Superscripts and Subscripts", "Mathematical Operators",
@@ -41,12 +41,12 @@ url<-"http://en.wikipedia.org/wiki/Mathematical_operators_and_symbols_in_Unicode
 
 url<-"http://milde.users.sourceforge.net/LUCR/Math/unimathsymbols.xhtml"
 
-# and the best todate!
+# and what appears to be the best todate!
 url<-"http://milde.users.sourceforge.net/LUCR/Math/unimathsymbols.xhtml"
 readHTMLTable(url, stringsAsFactors = FALSE, header=T)->codeTables2
 rbindlist(codeTables2)->code.DT
 code.DT<-code.DT[,.(no.,LaTeX,requirements)]
-write.csv(code.DT, "Unicode/unicodeLatex.csv", row.names=F)
+write.csv(code.DT, "dataTableLink/Unicode/unicodeLatex.csv", row.names=F)
 
 # want to save no. , LateX, class and requrirements
 
