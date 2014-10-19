@@ -280,7 +280,16 @@ AttributeElementValueTable<-function(){
   AVEL2.dt[treatValueAs=="wsp-list {10}", treatValueAs:="wsp-list"]
   AVEL2.dt[treatValueAs=="wsp-list ", treatValueAs:="wsp-list"]
   
+#   # add custom values
+#   dt1<-data.table(attr="value", element=c("text", "textPath", "tspan"),
+#       anim=FALSE ,link="" ,page=""  ,loc=""  ,
+#       val= "<string>",lnk= "string", treatValueAs="xmlValue")
+#   dt2<-data.table(attr="colors", element=c("linearGradient", "radialGradient"),
+#                   anim=FALSE ,link="" ,page=""  ,loc=""  ,
+#                   val= "<string>",lnk= "string", treatValueAs="gradColor")
+  #opacities, offsets???
   
+  AVEL2.dt<-rbind(AVEL2.dt,dt1,dt2)
   
   AVEL2.dt
 }
@@ -288,7 +297,7 @@ AttributeElementValueTable<-function(){
 
 AVETable<-AttributeElementValueTable()
 
-write.csv(AVETable, "AVETable.csv")
+write.csv(AVETable, "dataTable/AVETable.csv")
 #write.tableAVETable, "AVETable.table")
 # for(i in 1:length(pages)){
 #   
