@@ -5,6 +5,9 @@ library(stringr)
 library(devtools)
 library(assertthat)
 
+
+unicodeDir<-"dataTableLink/Unicode/"
+
 # hershey fonts:
 #http://emergent.unpythonic.net/software/hershey
 
@@ -23,9 +26,8 @@ names(codeTables)<-val.h2
 names(codeTables)
 str(codeTables)
 
-
 writeToFile<-function(cname, ctable){
-  write.csv(ctable,paste0("dataTableLink/" ,"Unicode/", cname,".csv"), row.names=F)
+  write.csv(ctable,paste0(unicodeDir, cname,".csv"), row.names=F)
 }
 
 toWrite<-c("Greek", "Hebrew", "Superscripts and Subscripts", "Mathematical Operators",
@@ -46,7 +48,7 @@ url<-"http://milde.users.sourceforge.net/LUCR/Math/unimathsymbols.xhtml"
 readHTMLTable(url, stringsAsFactors = FALSE, header=T)->codeTables2
 rbindlist(codeTables2)->code.DT
 code.DT<-code.DT[,.(no.,LaTeX,requirements)]
-write.csv(code.DT, "dataTableLink/Unicode/unicodeLatex.csv", row.names=F)
+write.csv(code.DT, paste0(unicodeDir,unicodeLatex.csv", row.names=F)
 
 # want to save no. , LateX, class and requrirements
 
