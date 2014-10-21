@@ -1,0 +1,47 @@
+---
+title: "StatusSummary"
+output: html_document
+---
+
+# Status Oct 9 2014
+
+##Code
+
+* **AEVL.R** creates the AVETable.csv (currently used for svgCreator)
+*  **classInfo.R** creates the table "presentationAttr.csv"
+  Uses *table[@class='propinfo']*
+* **elementSummary.R**
+* **PropertyIndx.R**
+ 
+
+##Tables
+ 
+### AVETable.csv 
+* created by AVEL.R
+* Derived from url="http://www.w3.org/TR/SVG/attindex.html"
+* Contains Non-presentation Attributes:
+  + attr        
+  + element
+  + anim
+  + link
+  + page
+  + loc
+  + val
+  + lnk
+  + treatValueAs
+  
+
+### presentationAttr.csv
+* Created by classInfo.R
+* Derived from prop_table
+* Contains Presentation attributes:
+  + Value 
+  + Initial 
+  + Applies to 
+  + Inherited 
+  + Percentages 
+  + Media Animatable 
+  + Values (this comes from CSS and need to be removed!!)
+
+###
+
