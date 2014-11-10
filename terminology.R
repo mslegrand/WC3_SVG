@@ -6,7 +6,7 @@ library(devtools)
 library(assertthat)
 
 url<-"http://www.w3.org/TR/SVG/intro.html#Terminology"
-
+url<-"http:# //www.w3.org/TR/2010/WD-SVG11-20100622/intro.html#TermPresentationAttribute"
 script<-getURL(url)
 doc <- htmlParse(script)
 getNodeSet(doc, "//dl/dt")->ns.dt
@@ -34,6 +34,6 @@ terminology.DT$name<-tmp
 
 
 
-write.table(terminology.DT,"dataTableLink Terminology.csv",sep=",",row.names=FALSE,quote=FALSE)
+write.table(terminology.DT,"dataTableLink/ Terminology.csv",sep=",",row.names=FALSE,quote=FALSE)
 
 #CAN WE DO SOMETHING WITH xmlAncestors??

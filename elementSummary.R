@@ -8,7 +8,8 @@ library(assertthat)
 
 source("showMe.R")
 
-
+#http://www.w3.org/TR/SVG11/
+#http://www.w3.org/TR/SVG11/eltindex.html
 #grap all page references to svg elements
 url="http://www.w3.org/TR/SVG/eltindex.html"
 getHTMLLinks(url, relative = TRUE)->tmp.links
@@ -20,9 +21,12 @@ unique(gsub("#.*$","", tmp.links))->pages
 # }
 # 
 # pageUrl<-"http://www.w3.org/TR/SVG/filters.html"
-clean<-function(x){
-  gsub("")
+
+capitalizeIt<-function(name){
+  gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", name, perl=TRUE)
 }
+
+
 scrape4ElementSummary<-function(pageUrl){
   #url<-"http://www.w3.org/TR/SVG/filters.html"
   #url<-"http://www.w3.org/TR/SVG/Overview.html"
@@ -60,8 +64,10 @@ scrape4ElementSummary<-function(pageUrl){
     #building dt1
     getNodeSet(node.dl, 'dd')->tmp.ns
     val<-xmlValue(tmp.ns[[1]])
-    dt1<-data.table(element=ele.name, type='category', value=val)
-    
+    val<-str_split(val,",")[[1]]
+    val<-capitalizeIt(str_trim( val))
+    val<-gsub("None","Uncategorized Element", val)
+    dt1<-data.table(element=ele.name, variable='category', value=val)
     #building dt2
     # this lools for anything under the 2nd dd which is below a ul
     # but need to consider either href or svg-term
@@ -80,12 +86,12 @@ scrape4ElementSummary<-function(pageUrl){
       val3<-"NULL"
     }
     val3<-cleanVals1(val3)
-    dt2<-data.table(element=ele.name, type='content.model', value=val3)
+    dt2<-data.table(element=ele.name, variable='content.model', value=val3)
     
     
     node.ul<-tmp.ns[[3]][['ul']]
     val<-node2Vals(node.ul)
-    dt3<-data.table(element=ele.name, type='attr', value=val)
+    dt3<-data.table(element=ele.name, variable='attr', value=val)
     
     dt<-rbindlist(list(dt1,dt2,dt3))
     
@@ -98,10 +104,10 @@ scrape4ElementSummary<-function(pageUrl){
 #scrape4ElementSummary(pageUrl)->test.page.dt
 
 elemementSummary.list<-lapply(pages, scrape4ElementSummary)
-rbindlist(elemementSummary.list)->elementSummary.dt
+rbindlist(elemementSummary.list)->es.DT
 
-write.table(elementSummary.dt,file="dataTableLink/elementSummary.csv",
-            sep=",",
+write.table(es.DT,file="dataTableLink/elementSummary.tsv",
+            sep="\t",
             row.names=FALSE,
             quote=FALSE)
 
@@ -111,7 +117,7 @@ write.table(elementSummary.dt,file="dataTableLink/elementSummary.csv",
 # i=5
 # node<-ns.els[[i]]
 # dt<-elementSummaryNode2Table(node)
-#data.table(element=ele.name, type='category', value=category)
+#data.table(element=ele.name, variable='category', value=category)
 
 # node in ns.els has 2 children: div and dl 
 # the element name being describe is given by  xmlValue(node[['div']])
