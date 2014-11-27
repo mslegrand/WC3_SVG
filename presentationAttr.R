@@ -70,4 +70,4 @@ cleanPropsTable<-function(prop.dt){
  
 cleanPropsTable(prop.dt)
 
-write.table(prop.dt,"dataTableLink/presentationAttr.csv",sep=",",row.names=FALSE,quote=FALSE)
+write.table(prop.dt,"dataTableLink/presentationAttr.tsv",sep="\t",row.names=FALSE,quote=FALSE)
