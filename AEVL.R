@@ -171,7 +171,7 @@ AttributeElementValueTable<-function(){
     missing.dt<-subset(AVEL2.dt,is.na(treatValueAs))
     setkey(missing.dt, val)
     missing.dt<-subset(unique(missing.dt))
-    missing.dt[,example:=NA] #Note: the original version removed page and loc  
+    missing.dt[,example:="NA"] #Note: the original version removed page and loc  
     
     #setMissing('xml:lang', "string", 'xml:lang=""en-GB"')
     missing.dt[attr=='xml:lang', ':='(treatValueAs="string", example='xml:lang="en-GB"')]
@@ -289,7 +289,7 @@ AttributeElementValueTable<-function(){
 #                   val= "<string>",lnk= "string", treatValueAs="gradColor")
   #opacities, offsets???
   
-  AVEL2.dt<-rbind(AVEL2.dt,dt1,dt2)
+  #AVEL2.dt<-rbind(AVEL2.dt,dt1,dt2)
   
   AVEL2.dt
 }
@@ -297,7 +297,12 @@ AttributeElementValueTable<-function(){
 
 AVETable<-AttributeElementValueTable()
 
-write.csv(AVETable, "dataTable/AVETable.csv")
+#write.csv(AVETable, "dataTable/AVETable.csv")
+write.table(AVETable,file="dataTableLink/AVETable.tsv",
+            sep="\t",
+            row.names=FALSE,
+            quote=FALSE)
+
 #write.tableAVETable, "AVETable.table")
 # for(i in 1:length(pages)){
 #   

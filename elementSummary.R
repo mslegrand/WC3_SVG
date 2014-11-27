@@ -103,8 +103,8 @@ scrape4ElementSummary<-function(pageUrl){
 
 #scrape4ElementSummary(pageUrl)->test.page.dt
 
-elemementSummary.list<-lapply(pages, scrape4ElementSummary)
-rbindlist(elemementSummary.list)->es.DT
+elementSummary.list<-lapply(pages, scrape4ElementSummary)
+rbindlist(elementSummary.list)->es.DT
 
 write.table(es.DT,file="dataTableLink/elementSummary.tsv",
             sep="\t",
