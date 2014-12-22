@@ -298,7 +298,7 @@ AttributeElementValueTable<-function(){
 AVETable<-AttributeElementValueTable()
 
 #write.csv(AVETable, "dataTable/AVETable.csv")
-write.table(AVETable,file="dataTableLink/AVETable.tsv",
+write.table(AVETable,file="dataTableLink/AVELTable.tsv",
             sep="\t",
             row.names=FALSE,
             quote=FALSE)

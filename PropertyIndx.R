@@ -1,5 +1,8 @@
-
+library(XML)
+library(RCurl)
 library(data.table)
+library(stringr)
+
 cleanVals1<-function(vals){
   vals<-gsub(" — .*$",":",vals) #truncate ending
   vals<-gsub("in’", "in1", vals) #be aware of this kludge
@@ -17,8 +20,8 @@ tmp.table[[1]]->tmp.df
 lapply(tmp.df,cleanVals1)->tmp2
 
 as.data.table(tmp2)->propIndx.DT
-write.table(propIndx.DT,file="dataTableLink/propIndex.csv",
-            sep=",",
+write.table(propIndx.DT,file="dataTableLink/propIndex.tsv",
+            sep="\t",
             row.names=FALSE,
             quote=FALSE)
 
