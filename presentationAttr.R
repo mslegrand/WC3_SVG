@@ -175,7 +175,7 @@ postProcessAppliesTo2<-function( presAttr.DT, es.DT ){
   # furthermore:
   
   expand.dict<-list(
-    'shapes elements'=
+    'shape elements'=
       c('path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon'),
     'text content elements'=
       c('altGlyph', 'textPath', 'text', 'tref' , 'tspan'),

@@ -69,6 +69,8 @@ tmp<-c(
   lapply(elements, function(el){getDT.Matching.XEndAttrs(el,'1')}),
   lapply(elements, function(el){getDT.Containing.Attrs(el, 'wh', 
                                                        c('width','height'))}),
+  lapply(elements, function(el){getDT.Containing.Attrs(el, 'wh', 
+                                                       c('Width','Height'))}), 
   lapply(elements, function(el){getDT.Containing.Attrs(el, 'in12', 
                                                        c('in', 'in2') )}),  
   lapply(elements, function(el){getDT.Containing.Attrs(el, 'xy1', 
@@ -82,7 +84,7 @@ tmp<-c(
 
 rbindlist(tmp)->comboParams.DT
 
-write.table(comboParams.DT,file="dataTables/comboParams.tsv",
+write.table(comboParams.DT,file="dataTableLink/comboParams.tsv",
             sep="\t",
             row.names=FALSE,
             quote=FALSE)
@@ -94,7 +96,7 @@ specParamsCXY.list<-lapply(elements, function(el){
 })
 
 specParamsCXY.DT<-rbindlist(specParamsCXY.list)
-write.table(specParamsCXY.DT,file="dataTables/specParamsCXY.tsv",
+write.table(specParamsCXY.DT,file="dataTableLink/specParamsCXY.tsv",
             sep="\t",
             row.names=FALSE,
             quote=FALSE)
