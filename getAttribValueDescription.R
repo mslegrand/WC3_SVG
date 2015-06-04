@@ -120,23 +120,23 @@ AVD.DT[, ':='(value=cleanData(value), value.def=cleanData(value.def)) ]
 
 # We manually intervene here to add some missing Attribute values
 
-ClassAttribute
-PreserveAspectRatioAttribute
-StyleAttribute
-SystemLanguageAttribute
-TextPathElementHrefAttribute
-TextPathElementMethodAttribute
-TextPathElementSpacingAttribute
-TransformAttribute
-ViewBoxAttribute
-XLinkActuateAttribute
-XLinkArcRoleAttribute
-XLinkRoleAttribute
-XLinkShowAttribute
-XLinkTitleAttribute
-XLinkTypeAttribute
-ZoomAndPanAttribute
-feConvolveMatrixElementKernelUnitLengthAttribute
+# ClassAttribute
+# PreserveAspectRatioAttribute
+# StyleAttribute
+# SystemLanguageAttribute
+# TextPathElementHrefAttribute
+# TextPathElementMethodAttribute
+# TextPathElementSpacingAttribute
+# TransformAttribute
+# ViewBoxAttribute
+# XLinkActuateAttribute
+# XLinkArcRoleAttribute
+# XLinkRoleAttribute
+# XLinkShowAttribute
+# XLinkTitleAttribute
+# XLinkTypeAttribute
+# ZoomAndPanAttribute
+# feConvolveMatrixElementKernelUnitLengthAttribute
 
 
 
