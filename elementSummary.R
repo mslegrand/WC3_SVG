@@ -106,6 +106,28 @@ scrape4ElementSummary<-function(pageUrl){
 elementSummary.list<-lapply(pages, scrape4ElementSummary)
 rbindlist(elementSummary.list)->es.DT
 
+#------------------------ATTENTION!!!!-----------------------------------------
+#  kludge to clean es.DT 
+#------------------------BEGIN CLEAN!!!!-----------------------------------------
+
+es.DT$value->values # extract last column
+
+#restrict our attention to content.mode
+grep('content.model', es.DT$variable)->content.indx
+
+grep('altGlyphDef',es.DT$element)->rpl.indx
+indx<-intersect(content.indx,rpl.indx)
+if(length(indx)!=3){stop("altGlyphDef issues")}
+values[indx]<-c('glyphRef', 'altGlyphItem', '')
+
+values<-gsub('elements?$','elements:',values)
+
+es.DT[,value:=values]
+es.DT<-es.DT[value!=""] #remove row with empty value
+
+#------------------------END CLEAN!!!!-----------------------------------------
+
+
 write.table(es.DT,file="dataTableLink/elementSummary.tsv",
             sep="\t",
             row.names=FALSE,

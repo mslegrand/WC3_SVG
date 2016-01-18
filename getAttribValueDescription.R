@@ -116,7 +116,40 @@ cleanData<-function(x){
   x<-gsub("%","",x)
 }
 
+# used only in generate.Reg.Attr.Pages
+cleanAttrValue<-function(vd){
+  vd<-gsub('[-:]',".",vd)
+  vd<-gsub('[‘’]',"'",vd)  
+  vd<-gsub('[@]','',vd)
+  vd<-gsub('…','...', vd)
+  #valDes<-gsub("[@‘’ é…−™]","",valDes)
+  vd<-gsub("[@‘’é…−™]","",vd)
+  iconv(vd, "latin1", "ASCII", sub="")
+  vd
+}
+
+
+
 AVD.DT[, ':='(value=cleanData(value), value.def=cleanData(value.def)) ]
+
+AVD.DT[, ':='(value=cleanAttrValue(value), value.def=cleanAttrValue(value.def)) ]
+
+#-------------Kludge to clean AVD.DT-----------------------------
+preserveAlpha.Def="A value of false indicates that the convolution will be applied to all channels, including the alpha channel. A value of true indicates the convolution is to be applied to only the color channels"
+indx<-grep("preserveAlpha",AVD.DT$attr)
+AVD.DT[indx,value.def:=preserveAlpha.Def]
+
+restart.Def=c(
+  "The animation can be restarted at any time (The default)",
+  "The animation can be restarted only when not active (i.e. the active end)",
+  "The element cannot be restarted for the duration of the parent container."
+)
+
+indx<-grep("restart",AVD.DT$attr)
+AVD.DT[indx,value.def:=restart.Def]
+
+#--------------------------------------------------------------------------
+
 
 # We manually intervene here to add some missing Attribute values
 

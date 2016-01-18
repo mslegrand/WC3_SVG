@@ -192,12 +192,12 @@ AttributeElementValueTable<-function(){
     missing.dt[attr=="transform", ':='(treatValueAs="transform-list", example="TODO!!!!!!!!")]
     missing.dt[attr=="result", ':='(treatValueAs="string", example='<feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur" />')]
     missing.dt[attr=="horiz-adv-x", ':='(treatValueAs="number", example="??")]
-    missing.dt[attr=="keySplines", ':='(treatValueAs="cmm-scln-list", example='keySplines="0,0.5,0.5,1; 0.5,0,1,0.5; 0,0.5,0.5,1; 0,0.5,0.5,1" ')]
+    missing.dt[attr=="keySplines", ':='(treatValueAs="wsp-scln-list", example='keySplines="0,0.5,0.5,1; 0.5,0,1,0.5; 0,0.5,0.5,1; 0,0.5,0.5,1" ')]
     #‘keyPoints’ takes a semicolon-separated list of floating point values between 0 and 1
     missing.dt[attr=="keyPoints", ':='(treatValueAs="scln-list", example='in doc: <list-of-numbers>, a semicolon-separated list of floating point values between 0 and 1 : keyPoints="0; 0.5; 1"')]
     # appears that space-semicolon seperated list will also work
     # calcMode="spline" keySplines="0 0 1 1; 0 0 1 1" 
-    missing.dt[attr=="keyTimes", ':='(treatValueAs="cmm-scln-list", example='keySplines="0,0.5,0.5,1; 0.5,0,1,0.5; 0,0.5,0.5,1; 0,0.5,0.5,1" ')]
+    missing.dt[attr=="keyTimes", ':='(treatValueAs="scln-list", example='keySplines="0,0.5,0.5,1; 0.5,0,1,0.5; 0,0.5,0.5,1; 0,0.5,0.5,1" ')]
     missing.dt[attr=="bbox", 
                ':='(treatValueAs="cmm-list {4}", example=
                       'comma-separated list of exactly four numbers specifying, in order, the lower left x, lower left y, upper right x, and upper right y of the bounding box for the complete font'
@@ -274,7 +274,7 @@ AttributeElementValueTable<-function(){
     }
   }
   
-  
+
   AVEL2.dt[treatValueAs=="transformlist", treatValueAs:="transform-list"]
   AVEL2.dt[treatValueAs=="cmm-list {4}", treatValueAs:="cmm-list"]
   AVEL2.dt[treatValueAs=="wsp-list {10}", treatValueAs:="wsp-list"]
@@ -290,7 +290,10 @@ AttributeElementValueTable<-function(){
   #opacities, offsets???
   
   #AVEL2.dt<-rbind(AVEL2.dt,dt1,dt2)
-  
+#don't know why I need to add to add this correction here but ...
+AVEL2.dt[attr=="keyTimes", treatValueAs:="scln-list"]
+AVEL2.dt[attr=="keySplines", treatValueAs:="wsp4scln-list"]
+
   AVEL2.dt
 }
 
@@ -298,6 +301,7 @@ AttributeElementValueTable<-function(){
 AVETable<-AttributeElementValueTable()
 
 #write.csv(AVETable, "dataTable/AVETable.csv")
+
 write.table(AVETable,file="dataTableLink/AVELTable.tsv",
             sep="\t",
             row.names=FALSE,
